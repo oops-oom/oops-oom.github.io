@@ -107,12 +107,12 @@
 <meta property="og:site_name" content="Know Why">
 <meta property="og:description" content="前段时间微博上注意到[叔度] 7，发了两篇关于面试的微博：  一些小伙伴们写网络程序的一个坏习惯是连接建立后就挂上可写事件，这是很浪费的。正确的方法是先写，写不下去才挂上可写事件。另外，可写事件其实不是事件，它只是判断发送缓冲区是否还有空间，它是被底层的TCP事件给附带上来的。附图是Linux内核源码实现。   对于非阻塞的connect，返回EINPROGRESS之后要加fd到epoll的可写事">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="http://yoursite.com/img/sendbufevent.jpg">
-<meta property="og:updated_time" content="2019-07-27T15:15:09.178Z">
+<meta property="og:image" content="https://binnnliu.github.io/img/sendbufevent.jpg">
+<meta property="og:updated_time" content="2019-07-27T15:50:38.390Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="两篇微博引发的思考">
 <meta name="twitter:description" content="前段时间微博上注意到[叔度] 7，发了两篇关于面试的微博：  一些小伙伴们写网络程序的一个坏习惯是连接建立后就挂上可写事件，这是很浪费的。正确的方法是先写，写不下去才挂上可写事件。另外，可写事件其实不是事件，它只是判断发送缓冲区是否还有空间，它是被底层的TCP事件给附带上来的。附图是Linux内核源码实现。   对于非阻塞的connect，返回EINPROGRESS之后要加fd到epoll的可写事">
-<meta name="twitter:image" content="http://yoursite.com/img/sendbufevent.jpg">
+<meta name="twitter:image" content="https://binnnliu.github.io/img/sendbufevent.jpg">
 
 
 
@@ -346,7 +346,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-07-27 23:15:09" itemprop="dateModified" datetime="2019-07-27T23:15:09+08:00">2019-07-27</time>
+                <time title="Modified: 2019-07-27 23:50:38" itemprop="dateModified" datetime="2019-07-27T23:50:38+08:00">2019-07-27</time>
               </span>
             
           
@@ -382,7 +382,7 @@
       
         <p>前段时间微博上注意到[叔度] <a href="http://weibo.com/tshudu" target="_blank" rel="noopener">7</a>，发了两篇关于面试的微博：</p>
 <blockquote>
-<p>一些小伙伴们写网络程序的一个坏习惯是连接建立后就挂上可写事件，这是很浪费的。正确的方法是先写，写不下去才挂上可写事件。另外，可写事件其实不是事件，它只是判断发送缓冲区是否还有空间，它是被底层的TCP事件给附带上来的。附图是Linux内核源码实现。<img src="/img/sendbufevent.jpg" alt="enter image description here"></p>
+<p>一些小伙伴们写网络程序的一个坏习惯是连接建立后就挂上可写事件，这是很浪费的。正确的方法是先写，写不下去才挂上可写事件。另外，可写事件其实不是事件，它只是判断发送缓冲区是否还有空间，它是被底层的TCP事件给附带上来的。附图是Linux内核源码实现。<img src="https://binnnliu.github.io/img/sendbufevent.jpg" alt="enter image description here"></p>
 </blockquote>
 <blockquote>
 <p>对于非阻塞的connect，返回EINPROGRESS之后要加fd到epoll的可写事件监视集合里面，等fd可写了之后记得要调用getsockopt判断SOL_SOCKET的SO_ERROR值是否为0！非0表示连接失败。</p>
@@ -531,7 +531,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
