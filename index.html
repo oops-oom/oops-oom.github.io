@@ -663,7 +663,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-07-28 11:07:25" itemprop="dateModified" datetime="2019-07-28T11:07:25+08:00">2019-07-28</time>
+                <time title="Modified: 2019-07-28 16:37:28" itemprop="dateModified" datetime="2019-07-28T16:37:28+08:00">2019-07-28</time>
               </span>
             
           
@@ -834,6 +834,195 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/19/对nginx $request_time的一些理解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binnnliu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Know Why">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2017/03/19/对nginx $request_time的一些理解/" class="post-title-link" itemprop="url">对于nginx $request_time的一些理解</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-03-19 01:32:29" itemprop="dateCreated datePublished" datetime="2017-03-19T01:32:29+08:00">2017-03-19</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-07-28 16:37:28" itemprop="dateModified" datetime="2019-07-28T16:37:28+08:00">2019-07-28</time>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="以前的理解"><a href="#以前的理解" class="headerlink" title="以前的理解"></a>以前的理解</h2><blockquote>
+<p>$request_time是 nginx收到第一个字节 到 nginx把所有响应内容放到tcp 发送缓冲区的时间。</p>
+</blockquote>
+<p>很长一段时间，我都觉得上面的说法是正确的。</p>
+<p>直到前两天跟同事探讨$request_time，才发现并不完全正确，才把以前的一些疑问解释了，觉得挺有意义，这里记录一下。</p>
+<p>$request_time对于很多CDN厂商来说是一个十分敏感的变量，某些时候可能涉及客户对于质量的考察，当然也许只是一些不太了解$request_time变量的人。</p>
+<p>Nginx文档对于$request_time的定义如下：</p>
+<blockquote>
+<p>request processing time in seconds with a milliseconds resolution; time elapsed since the first bytes were read from the client</p>
+</blockquote>
+<p>文档只介绍了何时开始计算request_time，没有说何时结束。</p>
+<h2 id="新的理解"><a href="#新的理解" class="headerlink" title="新的理解"></a>新的理解</h2><p>对于开启长连接的请求处理，上面的说法是完全正确的。</p>
+<p>但是对于短连接的呢？</p>
+<p>大概是16年初，曾经某水果台曾使用我们公司CDN。客户使用几家CDN,对比发现我们的CDN慢速请求（byte_sent/request_time）数较多。</p>
+<p>讲道理的话，这时候应该优化了。当然首先想到的肯定是sndbuf，恩，其实很多公司也确实是这么做的。</p>
+<p>把sndbuf调整到2M, 果然排名靠前了不少。</p>
+<p>这时候售前同学就统计了，说Http 1.0的慢速请求数还是很多。</p>
+<p>sndbuf还区分协议的？</p>
+<p>显然，http1.0和http1.1的一个主要区别就是http1.0默认是关闭长连接的。</p>
+<p>查了下代码，发现 <code>ngx_http_finalize_connection</code>中对于是否开启长连接，走了两种不同的路径。</p>
+<p>显然，开启了keep_alive，会走ngx_http_set_keepalive分支；但是，如若不开启，keepalive则有两种可能：</p>
+<ol>
+<li>ngx_http_close_request;</li>
+<li>ngx_http_set_lingering_close; 显然调用lingering_close的话，会导致打印日志的时间推迟；</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!ngx_terminate</span><br><span class="line">     &amp;&amp; !ngx_exiting</span><br><span class="line">     &amp;&amp; r-&gt;keepalive</span><br><span class="line">     &amp;&amp; clcf-&gt;keepalive_timeout &gt; <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    ngx_http_set_keepalive(r);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (clcf-&gt;lingering_close == NGX_HTTP_LINGERING_ALWAYS</span><br><span class="line">    || (clcf-&gt;lingering_close == NGX_HTTP_LINGERING_ON</span><br><span class="line">        &amp;&amp; (r-&gt;lingering_close</span><br><span class="line">            || r-&gt;header_in-&gt;pos &lt; r-&gt;header_in-&gt;last</span><br><span class="line">            || r-&gt;connection-&gt;read-&gt;ready)))</span><br><span class="line">&#123;</span><br><span class="line">    ngx_http_set_lingering_close(r);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ngx_http_close_request(r, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Nginx对于epoll采用的是NGX_USE_GREEDY_EVENT策略（The event filter requires to do i/o operation until EAGAIN: epoll.）。</p>
+<p>这种策略导致，在调用<code>ngx_http_finalize_connection</code>时，read-&gt;ready一直为1，从而调用ngx_http_set_lingering_close关闭连接。</p>
+<p>但是这个问题在1.11.13版本，nginx引入epoll对于EPOLL_RDHUP的处理后有所改变，代码如下：</p>
+<p><a href="https://github.com/nginx/nginx/commit/12f436718963f8343e38ad6d0e8f7251c95984cd#diff-fbb307b8718d9152c5dc4563247f5349" target="_blank" rel="noopener">nginx diff</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>) &#123; <span class="comment">//读取到的字节数为0，表示对端关闭连接</span></span><br><span class="line">            rev-&gt;ready = <span class="number">0</span>;</span><br><span class="line">            rev-&gt;eof = <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (n &gt; <span class="number">0</span>) &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> (NGX_HAVE_EPOLLRDHUP)</span></span><br><span class="line">            <span class="keyword">if</span> ((ngx_event_flags &amp; NGX_USE_EPOLL_EVENT)</span><br><span class="line">                &amp;&amp; ngx_use_epoll_rdhup)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> ((<span class="keyword">size_t</span>) n &lt; size) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (!rev-&gt;pending_eof) &#123;</span><br><span class="line">                        rev-&gt;ready = <span class="number">0</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    rev-&gt;available = <span class="number">0</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> n;</span><br><span class="line">            &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">            <span class="keyword">if</span> ((<span class="keyword">size_t</span>) n &lt; size</span><br><span class="line">                &amp;&amp; !(ngx_event_flags &amp; NGX_USE_GREEDY_EVENT)) </span><br><span class="line">            &#123;</span><br><span class="line">                rev-&gt;ready = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> n;</span><br><span class="line">        &#125;</span><br><span class="line">        err = ngx_socket_errno;</span><br><span class="line">        <span class="keyword">if</span> (err == NGX_EAGAIN || err == NGX_EINTR) &#123;</span><br><span class="line">            ngx_log_debug0(NGX_LOG_DEBUG_EVENT, c-&gt;<span class="built_in">log</span>, err,</span><br><span class="line">                           <span class="string">"recv() not ready"</span>);</span><br><span class="line">            n = NGX_AGAIN;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            n = ngx_connection_error(c, err, <span class="string">"recv() failed"</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以对于nginx 1.11.13之后的版本，无论是否开启keepalive上述的结论仍然是正确的。</p>
+<p>对于之前版本，如果想避免lingering_close，可以在配置项中<code>lingering_close off</code>。</p>
+<h2 id="TCP-Socket对于linger-close的支持"><a href="#TCP-Socket对于linger-close的支持" class="headerlink" title="TCP Socket对于linger close的支持"></a>TCP Socket对于linger close的支持</h2><p>close(l_onoff=0缺省状态):在套接口上不能在发出发送或接收请求;套接口发送缓冲区中的内容被发送到对端.如果描述字引用计数变为0;在发送完发送缓冲区中的数据后,跟以正常的TCP连接终止序列(发送FIN);套接口接受缓冲区中内容被丢弃。</p>
+<p>close(l_onoff = 1, l_linger =0):在套接口上不能再发出发送或接受请求,如果描述子引用计数变为0,RST被发送到对端;连接的状态被置为CLOSED(没有TIME_WAIT状态),套接口发送缓冲区和套接口接受缓冲区的数据被丢弃。</p>
+<p>close(l_onoff =1, l_linger != 0):在套接口上不能在发出发送或接收请求;套接口发送缓冲区中的内容被发送到对端.如果描述字引用计数变为0;在发送完发送缓冲区中的数据后,跟以正常的TCP连接终止序列(发送FIN);套接口接受缓冲区中内容被丢弃;如果在连接变成CLOSED状态前延滞时间到,那么close返回EWOULDBLOCK错误。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2014/03/19/epoll/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -894,7 +1083,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-07-27 23:50:38" itemprop="dateModified" datetime="2019-07-27T23:50:38+08:00">2019-07-27</time>
+                <time title="Modified: 2019-07-28 16:37:28" itemprop="dateModified" datetime="2019-07-28T16:37:28+08:00">2019-07-28</time>
               </span>
             
           
@@ -930,15 +1119,14 @@
       
         
           
-            <p>前段时间微博上注意到[叔度] <a href="http://weibo.com/tshudu" target="_blank" rel="noopener">7</a>，发了两篇关于面试的微博：</p>
+            <h3 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h3><p>前段时间微博上注意到[叔度] <a href="http://weibo.com/tshudu" target="_blank" rel="noopener">7</a>，发了两篇关于面试的微博：</p>
 <blockquote>
 <p>一些小伙伴们写网络程序的一个坏习惯是连接建立后就挂上可写事件，这是很浪费的。正确的方法是先写，写不下去才挂上可写事件。另外，可写事件其实不是事件，它只是判断发送缓冲区是否还有空间，它是被底层的TCP事件给附带上来的。附图是Linux内核源码实现。<img src="https://binnnliu.github.io/img/sendbufevent.jpg" alt="enter image description here"></p>
 </blockquote>
 <blockquote>
 <p>对于非阻塞的connect，返回EINPROGRESS之后要加fd到epoll的可写事件监视集合里面，等fd可写了之后记得要调用getsockopt判断SOL_SOCKET的SO_ERROR值是否为0！非0表示连接失败。</p>
 </blockquote>
-<p><strong>EPOLL使用</strong></p>
-<ul>
+<h3 id="EPOLL使用"><a href="#EPOLL使用" class="headerlink" title="EPOLL使用"></a>EPOLL使用</h3><ul>
 <li>ET  only noblocking mode<pre><code>处理方式：</code></pre><ul>
 <li>读:只要可读，就一直读，直到返回0，或者 errno = EAGAIN</li>
 <li>写:只要可写，就一直写，直到数据发送完，或者 errno = EAGAIN</li>
@@ -951,7 +1139,7 @@
 <li>若在ET模式下，其实还好,相比与LT模式。哈..</li>
 <li>若在LT模式下，将会不停的触发！</li>
 </ul>
-<p>如何做呢。正如叔度所说，先写，直到errno=EAGIN。挂载写事件，在epoll的驱动下完成全部内容的发送。当然nginx就是这么实现的。ngx_http_write，但是LT模式下，需不需要触发后从epoll中移出此可写事件呢。</p>
+<h3 id="Nginx的实现"><a href="#Nginx的实现" class="headerlink" title="Nginx的实现"></a>Nginx的实现</h3><p>如何做呢。正如叔度所说，先写，直到errno=EAGIN。挂载写事件，在epoll的驱动下完成全部内容的发送。当然nginx就是这么实现的。ngx_http_write，但是LT模式下，需不需要触发后从epoll中移出此可写事件呢。</p>
 <p>问题：<br>    nginx使用了何种触发方式？<br>listen的socket用的水平触发，而accept之后的端口使用的是边沿触发。为何这么麻烦呢?<br>1.listen的fd使用水平触发是因为害怕丢失链接；其实使用边沿触发也有解决办法：用while循环抱住accept调用，处理完TCP就绪队列中的所有连接后再退出循环。nginx有个配置选项：[multi_accept] <a href="http://nginx.org/en/docs/ngx_core_module.html#multi_accept" target="_blank" rel="noopener">6</a>,这是为啥？莫非是为了减少epoll_wait的系统调用?<br>2.使用ET可以有效的减少系统调用，但是ET，LT哪种更高效，貌似没用确切的结论。[ET理论上可以比LT少带来一些系统调用，所以更省一些。具体的性能提高有多少，要看应用场景。不过绝大部分场景下，LT是足够的。] <a href="http://www.zhihu.com/question/20502870" target="_blank" rel="noopener">4</a> </p>
 <p>nginx水平触发代码如下：若nginx配置[accept_mutex] <a href="http://nginx.org/en/docs/ngx_core_module.html#accept_mutex" target="_blank" rel="noopener">5</a> on时会调用如下函数  </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">ngx_int_t</span></span><br><span class="line">ngx_enable_accept_events(<span class="keyword">ngx_cycle_t</span> *cycle)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">ngx_uint_t</span>         i;</span><br><span class="line">    <span class="keyword">ngx_listening_t</span>   *ls;</span><br><span class="line">    <span class="keyword">ngx_connection_t</span>  *c;</span><br><span class="line"></span><br><span class="line">    ls = cycle-&gt;listening.elts;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; cycle-&gt;listening.nelts; i++) &#123;</span><br><span class="line"></span><br><span class="line">        c = ls[i].connection;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (c-&gt;read-&gt;active) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (ngx_event_flags &amp; NGX_USE_RTSIG_EVENT) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (ngx_add_conn(c) == NGX_ERROR) &#123;</span><br><span class="line">                <span class="keyword">return</span> NGX_ERROR;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (ngx_add_event(c-&gt;read, NGX_READ_EVENT, <span class="number">0</span>) == NGX_ERROR) &#123;</span><br><span class="line">                <span class="keyword">return</span> NGX_ERROR;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> NGX_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -963,8 +1151,7 @@
 <p>EINPROGRESS<br>The socket is non-blocking and the connection cannot be completed immediately.  It is possible to select(2) or poll(2) for completion by selecting the socket for writing.After select(2) indicates writability, use getsockopt(2) to read the SO_ERROR option at level SOL_SOCKET to determine whether connect()  completed  successfully  (SO_ERROR  is zero) or unsuccessfully (SO_ERROR is one of the usual error codes listed here, explaining the reason for the failure).</p>
 </blockquote>
 <p>但是为什么呢？不成功也会返回可写事件？这是必须的。不管成功或者失败，总需要给client端一个交代吧。</p>
-<p><strong>缓冲区</strong></p>
-<p>发送缓冲区(send buffer)<br>ex:发送一个14M的buffer–公司客户端某些同事，就是在nonblocking模式下发送14m文件的，而且他就send了一次。<br>1.block模式下，等待所有的buffer发送完后返回。block方式有可能返回小于buffer长度的值么？嗯，是的。在对方异常关闭或超时是会造成返回小于buffer长度的值如果对端返回rst时，继续写的话会产生SIGPIPE,这里需要特别注意，因为sigpipe默认处理是关闭进程！一般情况下，需要捕捉此信号；<br>2.noblocking模式下，若返回值为-1，errno=EAGAIN,则加入侦听；若返回值为大于0,则循环继续发送；</p>
+<h3 id="缓冲区"><a href="#缓冲区" class="headerlink" title="缓冲区"></a>缓冲区</h3><p>发送缓冲区(send buffer)<br>ex:发送一个14M的buffer–公司客户端某些同事，就是在nonblocking模式下发送14m文件的，而且他就send了一次。<br>1.block模式下，等待所有的buffer发送完后返回。block方式有可能返回小于buffer长度的值么？嗯，是的。在对方异常关闭或超时是会造成返回小于buffer长度的值如果对端返回rst时，继续写的话会产生SIGPIPE,这里需要特别注意，因为sigpipe默认处理是关闭进程！一般情况下，需要捕捉此信号；<br>2.noblocking模式下，若返回值为-1，errno=EAGAIN,则加入侦听；若返回值为大于0,则循环继续发送；</p>
 <p>这个要说下nginx：<br>当然如果发送文件的话，nginx用的sendfile。<br>sendfile的好处是啥呢？减少copy次数。<br>这里必须要解释下copy为啥费时费力的：<br><strong>copy一般情况下需要cpu,寄存器,一次只能copy 32bit,所以一个指令周期只能copy 32bit。</strong>所以出现了DMA,sendbuf,splice,cow等技术。nginx在upstream也做了优化。具体见：[代理服务器中的内容防拷贝技术] <a href="http://blog.csdn.net/brainkick/article/details/9843009" target="_blank" rel="noopener">2</a> ,也因此有了面试题目：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">memcpy</span><span class="params">(<span class="keyword">void</span> *src,<span class="keyword">void</span> *dst)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//如何实现更快...</span></span><br><span class="line">    <span class="comment">//可以转为int *类型这个，一个指令周期就可以最大化的copy</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1221,7 +1408,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1244,7 +1431,9 @@
         
           
         
-        <span class="site-state-item-count">2</span>
+          
+        
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">tags</span>
         
       </div>
