@@ -350,13 +350,23 @@
                 
               
 
-              <time title="Created: 2019-08-04 15:32:29 / Modified: 15:48:39" itemprop="dateCreated datePublished" datetime="2019-08-04T15:32:29+08:00">2019-08-04</time>
+              <time title="Created: 2019-08-04 15:32:29" itemprop="dateCreated datePublished" datetime="2019-08-04T15:32:29+08:00">2019-08-04</time>
             </span>
           
 
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-08-05 00:15:27" itemprop="dateModified" datetime="2019-08-05T00:15:27+08:00">2019-08-05</time>
+              </span>
             
           
 
@@ -393,7 +403,7 @@
           
             <blockquote>
 <p>For the impatient, golang is aways <strong>pass-by-value</strong>.</p>
-<p>Java is always <strong>pass-by-value</strong>.</p>
+<p>Java is <strong>strictly</strong> pass-by-value, exactly as in C. </p>
 </blockquote>
 <h2 id="map是pass-by-value的"><a href="#map是pass-by-value的" class="headerlink" title="map是pass-by-value的"></a>map是pass-by-value的</h2><h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fixmap</span><span class="params">(m <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	m[<span class="string">"a"</span>] = <span class="string">"aaa"</span></span><br><span class="line">	m = <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span><br><span class="line">	m[<span class="string">"b"</span>] = <span class="string">"bbb"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	amap := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>&#123;</span><br><span class="line">		<span class="string">"a"</span>: <span class="string">"aa"</span>,</span><br><span class="line">		<span class="string">"b"</span>: <span class="string">"bb"</span>,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fixmap(amap)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> k, v := <span class="keyword">range</span> amap &#123;</span><br><span class="line">		fmt.Println(k, v)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//output:</span></span><br><span class="line"><span class="comment">//a aaa</span></span><br><span class="line"><span class="comment">//b bb</span></span><br></pre></td></tr></table></figure>
 
@@ -410,6 +420,8 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> SliceHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">	Data <span class="keyword">uintptr</span></span><br><span class="line">	Len  <span class="keyword">int</span></span><br><span class="line">	Cap  <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="Pass-By-Value-vs-Pass-By-Reference"><a href="#Pass-By-Value-vs-Pass-By-Reference" class="headerlink" title="Pass-By-Value vs Pass-By-Reference"></a>Pass-By-Value vs Pass-By-Reference</h2><p>区别于<code>primitive types</code> <code>reference types</code></p>
+<p>区别于<code>call by name</code> <code>call by value</code> <code>lazy</code> <code>val</code> <code>def</code> in scala</p>
+<p><code>reference</code> <code>dereference</code></p>
 <blockquote>
 <p>Unless you are programming in Fortran or Visual Basic (C++ ?), it’s not the default behavior, and in most languages in modern use, true call-by-reference is not even possible.</p>
 </blockquote>
@@ -421,6 +433,7 @@
 <h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><p><a href="https://stackoverflow.com/questions/40480/is-java-pass-by-reference-or-pass-by-value/" target="_blank" rel="noopener">Is Java “pass-by-reference” or “pass-by-value”?</a></p>
 <p><a href="https://dave.cheney.net/2017/04/30/if-a-map-isnt-a-reference-variable-what-is-it" target="_blank" rel="noopener">If a map isn’t a reference variable, what is it?</a></p>
 <p><a href="https://stackoverflow.com/questions/373419/whats-the-difference-between-passing-by-reference-vs-passing-by-value" target="_blank" rel="noopener">What’s the difference between passing by reference vs. passing by value?</a></p>
+<p><a href="http://www.javadude.com/articles/passbyvalue.htm" target="_blank" rel="noopener">Java is Pass-by-Value, Dammit!</a></p>
 
           
         
@@ -637,6 +650,167 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/28/golang中goroutine的管理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binnnliu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="知其所以然">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/07/28/golang中goroutine的管理/" class="post-title-link" itemprop="url">golang中goroutine的管理</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-07-28 15:32:29" itemprop="dateCreated datePublished" datetime="2019-07-28T15:32:29+08:00">2019-07-28</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-08-05 00:15:27" itemprop="dateModified" datetime="2019-08-05T00:15:27+08:00">2019-08-05</time>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="goroutine的管理"><a href="#goroutine的管理" class="headerlink" title="goroutine的管理"></a>goroutine的管理</h3><h3 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h3><ul>
+<li><p>signal</p>
+</li>
+<li><p>context</p>
+</li>
+<li><p>waitgroup</p>
+</li>
+</ul>
+<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"context"</span></span><br><span class="line">	<span class="string">"log"</span></span><br><span class="line">	<span class="string">"os"</span></span><br><span class="line">	<span class="string">"os/signal"</span></span><br><span class="line">	<span class="string">"sync"</span></span><br><span class="line">	<span class="string">"syscall"</span></span><br><span class="line">	<span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	wg := sync.WaitGroup&#123;&#125;</span><br><span class="line">	sigs := <span class="built_in">make</span>(<span class="keyword">chan</span> os.Signal, <span class="number">1</span>)</span><br><span class="line">	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)</span><br><span class="line">	ctx, cancel := context.WithCancel(context.Background())</span><br><span class="line">	line := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>, <span class="number">1</span>)</span><br><span class="line">	<span class="keyword">go</span> Producer(line)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</span><br><span class="line">		wg.Add(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">go</span> WorkFunc(ctx, line, &amp;wg)</span><br><span class="line">	&#125;</span><br><span class="line">	&lt;- sigs</span><br><span class="line">	cancel()</span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工作协程</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WorkFunc</span><span class="params">(ctx context.Context, line <span class="keyword">chan</span> <span class="keyword">int</span>, wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		wg.Done()</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	L:</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> n := &lt;- line:</span><br><span class="line">			log.Println(<span class="string">"work start:"</span>, n)</span><br><span class="line">			time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">			log.Println(<span class="string">"work done:"</span>, n)</span><br><span class="line">		<span class="keyword">case</span> &lt;- ctx.Done():</span><br><span class="line">			log.Println(<span class="string">"exit"</span>)</span><br><span class="line">			<span class="comment">// A "break" statement terminates execution of the</span></span><br><span class="line">			<span class="comment">// innermost "for", "switch" or "select" statement.</span></span><br><span class="line">			<span class="comment">// 此处如果单纯break只会退出select,导致无限循环</span></span><br><span class="line">			<span class="keyword">break</span> L</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 生产协程</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Producer</span><span class="params">(line <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i:=<span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		line &lt;- i</span><br><span class="line">		time.Sleep(time.Second)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+
+    
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/28/golang中的for range语义的理解/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -697,7 +871,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-04 15:42:32" itemprop="dateModified" datetime="2019-08-04T15:42:32+08:00">2019-08-04</time>
+                <time title="Modified: 2019-08-05 00:15:27" itemprop="dateModified" datetime="2019-08-05T00:15:27+08:00">2019-08-05</time>
               </span>
             
           
@@ -733,7 +907,7 @@
       
         
           
-            <p>golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样,所以使用时还是需要特别注意。</p>
+            <p>golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样(make sence),所以使用时还是需要特别注意。</p>
 <p>以下是两个错误使用for range的场景</p>
 <h2 id="场景1-在for-range中获取循环变量的地址"><a href="#场景1-在for-range中获取循环变量的地址" class="headerlink" title="场景1 - 在for range中获取循环变量的地址"></a>场景1 - 在for range中获取循环变量的地址</h2><h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	vals := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">	valptr := <span class="built_in">make</span>([]*<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> k, v := <span class="keyword">range</span> vals &#123;</span><br><span class="line">        <span class="comment">//v := v</span></span><br><span class="line">		valptr = <span class="built_in">append</span>(valptr, &amp;v)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, v := <span class="keyword">range</span> valptr &#123;</span><br><span class="line">		<span class="built_in">println</span>(v)</span><br><span class="line">		<span class="built_in">println</span>(*v)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -772,8 +946,8 @@
 <p>should be equivalent to</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> k, v := <span class="keyword">range</span> vals &#123;</span><br><span class="line">  k := k</span><br><span class="line">  v := v</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html" target="_blank" rel="noopener">https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html</a></p>
-<p><a href="https://tam7t.com/golang-range-and-pointers/" target="_blank" rel="noopener">https://tam7t.com/golang-range-and-pointers/</a></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html" target="_blank" rel="noopener">Iterating Over Slices In Go</a></p>
+<p><a href="https://tam7t.com/golang-range-and-pointers/" target="_blank" rel="noopener">golang-range-and-pointers</a></p>
 
           
         
@@ -1642,7 +1816,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -99,18 +99,18 @@
   };
 </script>
 
-  <meta name="description" content="golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样,所以使用时还是需要特别注意。 以下是两个错误使用for range的场景 场景1 - 在for range中获取循环变量的地址代码12345678910111213141516package mainfunc main() &amp;#123;	vals := []i">
+  <meta name="description" content="golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样(make sence),所以使用时还是需要特别注意。 以下是两个错误使用for range的场景 场景1 - 在for range中获取循环变量的地址代码12345678910111213141516package mainfunc main() &amp;#123;">
 <meta name="keywords" content="golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="golang中的for range语义的理解">
 <meta property="og:url" content="http://yoursite.com/2019/07/28/golang中的for range语义的理解/index.html">
 <meta property="og:site_name" content="知其所以然">
-<meta property="og:description" content="golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样,所以使用时还是需要特别注意。 以下是两个错误使用for range的场景 场景1 - 在for range中获取循环变量的地址代码12345678910111213141516package mainfunc main() &amp;#123;	vals := []i">
+<meta property="og:description" content="golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样(make sence),所以使用时还是需要特别注意。 以下是两个错误使用for range的场景 场景1 - 在for range中获取循环变量的地址代码12345678910111213141516package mainfunc main() &amp;#123;">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:updated_time" content="2019-08-04T07:42:32.466Z">
+<meta property="og:updated_time" content="2019-08-04T16:15:27.512Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang中的for range语义的理解">
-<meta name="twitter:description" content="golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样,所以使用时还是需要特别注意。 以下是两个错误使用for range的场景 场景1 - 在for range中获取循环变量的地址代码12345678910111213141516package mainfunc main() &amp;#123;	vals := []i">
+<meta name="twitter:description" content="golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样(make sence),所以使用时还是需要特别注意。 以下是两个错误使用for range的场景 场景1 - 在for range中获取循环变量的地址代码12345678910111213141516package mainfunc main() &amp;#123;">
 
 
 
@@ -367,7 +367,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-04 15:42:32" itemprop="dateModified" datetime="2019-08-04T15:42:32+08:00">2019-08-04</time>
+                <time title="Modified: 2019-08-05 00:15:27" itemprop="dateModified" datetime="2019-08-05T00:15:27+08:00">2019-08-05</time>
               </span>
             
           
@@ -401,7 +401,7 @@
       
 
       
-        <p>golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样,所以使用时还是需要特别注意。</p>
+        <p>golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样(make sence),所以使用时还是需要特别注意。</p>
 <p>以下是两个错误使用for range的场景</p>
 <h2 id="场景1-在for-range中获取循环变量的地址"><a href="#场景1-在for-range中获取循环变量的地址" class="headerlink" title="场景1 - 在for range中获取循环变量的地址"></a>场景1 - 在for range中获取循环变量的地址</h2><h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	vals := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">	valptr := <span class="built_in">make</span>([]*<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> k, v := <span class="keyword">range</span> vals &#123;</span><br><span class="line">        <span class="comment">//v := v</span></span><br><span class="line">		valptr = <span class="built_in">append</span>(valptr, &amp;v)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, v := <span class="keyword">range</span> valptr &#123;</span><br><span class="line">		<span class="built_in">println</span>(v)</span><br><span class="line">		<span class="built_in">println</span>(*v)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -440,8 +440,8 @@
 <p>should be equivalent to</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> k, v := <span class="keyword">range</span> vals &#123;</span><br><span class="line">  k := k</span><br><span class="line">  v := v</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html" target="_blank" rel="noopener">https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html</a></p>
-<p><a href="https://tam7t.com/golang-range-and-pointers/" target="_blank" rel="noopener">https://tam7t.com/golang-range-and-pointers/</a></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html" target="_blank" rel="noopener">Iterating Over Slices In Go</a></p>
+<p><a href="https://tam7t.com/golang-range-and-pointers/" target="_blank" rel="noopener">golang-range-and-pointers</a></p>
 
       
     </div>
@@ -495,8 +495,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/08/04/TODO/" rel="prev" title="写作计划">
-                写作计划 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/07/28/golang中goroutine的管理/" rel="prev" title="golang中goroutine的管理">
+                golang中goroutine的管理 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -565,7 +565,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

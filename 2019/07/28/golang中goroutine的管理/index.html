@@ -99,17 +99,18 @@
   };
 </script>
 
-  <meta name="description" content="Scala  泛型  协变vs逆变  Functions in scala  GC  Golang  slice array 实现分析   map 并发map分析   golang gc   golang runtime分析   HTTP  HTTP2.0  HTTP3.0  HTTPS HSTS  源码分析  Spark源码分析">
+  <meta name="description" content="goroutine的管理知识点 signal  context  waitgroup   代码示例12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758package mainimport (	&quot;context&quot;	&quot;log&quot;	&quot;os&quot;	&quot;o">
+<meta name="keywords" content="golang">
 <meta property="og:type" content="article">
-<meta property="og:title" content="写作计划">
-<meta property="og:url" content="http://yoursite.com/2019/08/04/TODO/index.html">
+<meta property="og:title" content="golang中goroutine的管理">
+<meta property="og:url" content="http://yoursite.com/2019/07/28/golang中goroutine的管理/index.html">
 <meta property="og:site_name" content="知其所以然">
-<meta property="og:description" content="Scala  泛型  协变vs逆变  Functions in scala  GC  Golang  slice array 实现分析   map 并发map分析   golang gc   golang runtime分析   HTTP  HTTP2.0  HTTP3.0  HTTPS HSTS  源码分析  Spark源码分析">
+<meta property="og:description" content="goroutine的管理知识点 signal  context  waitgroup   代码示例12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758package mainimport (	&quot;context&quot;	&quot;log&quot;	&quot;os&quot;	&quot;o">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:updated_time" content="2019-08-04T04:27:32.442Z">
+<meta property="og:updated_time" content="2019-08-04T16:15:27.512Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="写作计划">
-<meta name="twitter:description" content="Scala  泛型  协变vs逆变  Functions in scala  GC  Golang  slice array 实现分析   map 并发map分析   golang gc   golang runtime分析   HTTP  HTTP2.0  HTTP3.0  HTTPS HSTS  源码分析  Spark源码分析">
+<meta name="twitter:title" content="golang中goroutine的管理">
+<meta name="twitter:description" content="goroutine的管理知识点 signal  context  waitgroup   代码示例12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758package mainimport (	&quot;context&quot;	&quot;log&quot;	&quot;os&quot;	&quot;o">
 
 
 
@@ -117,7 +118,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2019/08/04/TODO/">
+  <link rel="canonical" href="http://yoursite.com/2019/07/28/golang中goroutine的管理/">
 
 
 
@@ -128,7 +129,7 @@
 </script>
 
   
-  <title>写作计划 | 知其所以然</title>
+  <title>golang中goroutine的管理 | 知其所以然</title>
   
 
 
@@ -308,7 +309,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/04/TODO/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/28/golang中goroutine的管理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="binnnliu">
@@ -325,7 +326,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">写作计划
+          <h1 class="post-title" itemprop="name headline">golang中goroutine的管理
 
               
             
@@ -351,10 +352,24 @@
                 
               
 
-              <time title="Created: 2019-08-04 12:27:32" itemprop="dateCreated datePublished" datetime="2019-08-04T12:27:32+08:00">2019-08-04</time>
+              <time title="Created: 2019-07-28 15:32:29" itemprop="dateCreated datePublished" datetime="2019-07-28T15:32:29+08:00">2019-07-28</time>
             </span>
           
 
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-08-05 00:15:27" itemprop="dateModified" datetime="2019-08-05T00:15:27+08:00">2019-08-05</time>
+              </span>
+            
           
 
           
@@ -386,30 +401,16 @@
       
 
       
-        <h2 id="Scala"><a href="#Scala" class="headerlink" title="Scala"></a>Scala</h2><ul>
-<li><input disabled type="checkbox"> 泛型</li>
-<li><input disabled type="checkbox"> 协变vs逆变</li>
-<li><input disabled type="checkbox"> Functions in scala</li>
-<li><input disabled type="checkbox"> GC</li>
-</ul>
-<h2 id="Golang"><a href="#Golang" class="headerlink" title="Golang"></a>Golang</h2><ul>
-<li><input disabled type="checkbox"> <p>slice array 实现分析</p>
+        <h3 id="goroutine的管理"><a href="#goroutine的管理" class="headerlink" title="goroutine的管理"></a>goroutine的管理</h3><h3 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h3><ul>
+<li><p>signal</p>
 </li>
-<li><input disabled type="checkbox"> <p>map 并发map分析</p>
+<li><p>context</p>
 </li>
-<li><input disabled type="checkbox"> <p>golang gc</p>
-</li>
-<li><input disabled type="checkbox"> <p>golang runtime分析</p>
+<li><p>waitgroup</p>
 </li>
 </ul>
-<h2 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h2><ul>
-<li><input disabled type="checkbox"> HTTP2.0</li>
-<li><input disabled type="checkbox"> HTTP3.0</li>
-<li><input disabled type="checkbox"> HTTPS HSTS</li>
-</ul>
-<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><ul>
-<li><input disabled type="checkbox"> Spark源码分析</li>
-</ul>
+<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"context"</span></span><br><span class="line">	<span class="string">"log"</span></span><br><span class="line">	<span class="string">"os"</span></span><br><span class="line">	<span class="string">"os/signal"</span></span><br><span class="line">	<span class="string">"sync"</span></span><br><span class="line">	<span class="string">"syscall"</span></span><br><span class="line">	<span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	wg := sync.WaitGroup&#123;&#125;</span><br><span class="line">	sigs := <span class="built_in">make</span>(<span class="keyword">chan</span> os.Signal, <span class="number">1</span>)</span><br><span class="line">	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)</span><br><span class="line">	ctx, cancel := context.WithCancel(context.Background())</span><br><span class="line">	line := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>, <span class="number">1</span>)</span><br><span class="line">	<span class="keyword">go</span> Producer(line)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</span><br><span class="line">		wg.Add(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">go</span> WorkFunc(ctx, line, &amp;wg)</span><br><span class="line">	&#125;</span><br><span class="line">	&lt;- sigs</span><br><span class="line">	cancel()</span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 工作协程</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WorkFunc</span><span class="params">(ctx context.Context, line <span class="keyword">chan</span> <span class="keyword">int</span>, wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		wg.Done()</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	L:</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> n := &lt;- line:</span><br><span class="line">			log.Println(<span class="string">"work start:"</span>, n)</span><br><span class="line">			time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">			log.Println(<span class="string">"work done:"</span>, n)</span><br><span class="line">		<span class="keyword">case</span> &lt;- ctx.Done():</span><br><span class="line">			log.Println(<span class="string">"exit"</span>)</span><br><span class="line">			<span class="comment">// A "break" statement terminates execution of the</span></span><br><span class="line">			<span class="comment">// innermost "for", "switch" or "select" statement.</span></span><br><span class="line">			<span class="comment">// 此处如果单纯break只会退出select,导致无限循环</span></span><br><span class="line">			<span class="keyword">break</span> L</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 生产协程</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Producer</span><span class="params">(line <span class="keyword">chan</span> <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i:=<span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		line &lt;- i</span><br><span class="line">		time.Sleep(time.Second)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -435,6 +436,15 @@
 
     <footer class="post-footer">
       
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/golang/" rel="tag"># golang</a>
+          
+        </div>
+      
 
       
       
@@ -444,8 +454,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/07/28/golang中goroutine的管理/" rel="next" title="golang中goroutine的管理">
-                <i class="fa fa-chevron-left"></i> golang中goroutine的管理
+              <a href="/2019/07/28/golang中的for range语义的理解/" rel="next" title="golang中的for range语义的理解">
+                <i class="fa fa-chevron-left"></i> golang中的for range语义的理解
               </a>
             
           </div>
@@ -454,8 +464,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/08/04/pass-by-value in golang/" rel="prev" title="pass-by-value in golang">
-                pass-by-value in golang <i class="fa fa-chevron-right"></i>
+              <a href="/2019/08/04/TODO/" rel="prev" title="写作计划">
+                写作计划 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -588,7 +598,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Scala"><span class="nav-number">1.</span> <span class="nav-text">Scala</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Golang"><span class="nav-number">2.</span> <span class="nav-text">Golang</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP"><span class="nav-number">3.</span> <span class="nav-text">HTTP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">4.</span> <span class="nav-text">源码分析</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#goroutine的管理"><span class="nav-number">1.</span> <span class="nav-text">goroutine的管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#知识点"><span class="nav-number">2.</span> <span class="nav-text">知识点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码示例"><span class="nav-number">3.</span> <span class="nav-text">代码示例</span></a></li></ol></div>
             
 
           </div>
