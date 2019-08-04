@@ -350,7 +350,7 @@
                 
               
 
-              <time title="Created: 2019-08-04 15:32:29 / Modified: 15:44:03" itemprop="dateCreated datePublished" datetime="2019-08-04T15:32:29+08:00">2019-08-04</time>
+              <time title="Created: 2019-08-04 15:32:29 / Modified: 15:48:39" itemprop="dateCreated datePublished" datetime="2019-08-04T15:32:29+08:00">2019-08-04</time>
             </span>
           
 
@@ -391,8 +391,10 @@
       
         
           
-            <h1 id="pass-by-value-in-golang"><a href="#pass-by-value-in-golang" class="headerlink" title="pass-by-value in golang"></a>pass-by-value in golang</h1><h2 id="for-the-impatient"><a href="#for-the-impatient" class="headerlink" title="for the impatient"></a>for the impatient</h2><p>golang is aways <strong>pass-by-value</strong>.</p>
+            <blockquote>
+<p>For the impatient, golang is aways <strong>pass-by-value</strong>.</p>
 <p>Java is always <strong>pass-by-value</strong>.</p>
+</blockquote>
 <h2 id="map是pass-by-value的"><a href="#map是pass-by-value的" class="headerlink" title="map是pass-by-value的"></a>map是pass-by-value的</h2><h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fixmap</span><span class="params">(m <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	m[<span class="string">"a"</span>] = <span class="string">"aaa"</span></span><br><span class="line">	m = <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span><br><span class="line">	m[<span class="string">"b"</span>] = <span class="string">"bbb"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	amap := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>&#123;</span><br><span class="line">		<span class="string">"a"</span>: <span class="string">"aa"</span>,</span><br><span class="line">		<span class="string">"b"</span>: <span class="string">"bb"</span>,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fixmap(amap)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> k, v := <span class="keyword">range</span> amap &#123;</span><br><span class="line">		fmt.Println(k, v)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//output:</span></span><br><span class="line"><span class="comment">//a aaa</span></span><br><span class="line"><span class="comment">//b bb</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="map不是pass-by-reference的"><a href="#map不是pass-by-reference的" class="headerlink" title="map不是pass-by-reference的"></a>map不是pass-by-reference的</h3><p>乍一看,在fixmap函数,<code>m[&quot;a&quot;] = &quot;aaa&quot;</code>,最终amap[“a”] == “aaa”;符合pass-by-reference的定义;</p>
@@ -416,7 +418,7 @@
 <p>A Mutex must not be copied after first use.</p>
 </blockquote>
 <p>golang中struct是值传递的,特别是WaitGroup和Mutex作为参数传递时,一定要用指针。</p>
-<h2 id="map-slice-chan"><a href="#map-slice-chan" class="headerlink" title="map slice chan"></a>map slice chan</h2><h3 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h3><p><a href="https://stackoverflow.com/questions/40480/is-java-pass-by-reference-or-pass-by-value/" target="_blank" rel="noopener">Is Java “pass-by-reference” or “pass-by-value”?</a></p>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><p><a href="https://stackoverflow.com/questions/40480/is-java-pass-by-reference-or-pass-by-value/" target="_blank" rel="noopener">Is Java “pass-by-reference” or “pass-by-value”?</a></p>
 <p><a href="https://dave.cheney.net/2017/04/30/if-a-map-isnt-a-reference-variable-what-is-it" target="_blank" rel="noopener">If a map isn’t a reference variable, what is it?</a></p>
 <p><a href="https://stackoverflow.com/questions/373419/whats-the-difference-between-passing-by-reference-vs-passing-by-value" target="_blank" rel="noopener">What’s the difference between passing by reference vs. passing by value?</a></p>
 
