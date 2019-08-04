@@ -305,7 +305,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/28/TODO/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/04/TODO/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="binnnliu">
@@ -325,7 +325,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/07/28/TODO/" class="post-title-link" itemprop="url">写作计划</a>
+                <a href="/2019/08/04/TODO/" class="post-title-link" itemprop="url">写作计划</a>
               
             
           </h1>
@@ -350,7 +350,7 @@
                 
               
 
-              <time title="Created: 2019-07-28 16:10:10" itemprop="dateCreated datePublished" datetime="2019-07-28T16:10:10+08:00">2019-07-28</time>
+              <time title="Created: 2019-08-04 12:27:32" itemprop="dateCreated datePublished" datetime="2019-08-04T12:27:32+08:00">2019-08-04</time>
             </span>
           
 
@@ -394,7 +394,14 @@
 <li><input disabled type="checkbox"> GC</li>
 </ul>
 <h2 id="Golang"><a href="#Golang" class="headerlink" title="Golang"></a>Golang</h2><ul>
-<li><input disabled type="checkbox"> golang runtime分析</li>
+<li><input disabled type="checkbox"> <p>slice array 实现分析</p>
+</li>
+<li><input disabled type="checkbox"> <p>map 并发map分析</p>
+</li>
+<li><input disabled type="checkbox"> <p>golang gc</p>
+</li>
+<li><input disabled type="checkbox"> <p>golang runtime分析</p>
+</li>
 </ul>
 <h2 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h2><ul>
 <li><input disabled type="checkbox"> HTTP2.0</li>
@@ -459,7 +466,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/28/for range in golang/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/28/golang中的for range语义的理解/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="binnnliu">
@@ -479,7 +486,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/07/28/for range in golang/" class="post-title-link" itemprop="url">golang中的for range实现</a>
+                <a href="/2019/07/28/golang中的for range语义的理解/" class="post-title-link" itemprop="url">golang中的for range语义的理解</a>
               
             
           </h1>
@@ -519,7 +526,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-01 20:00:16" itemprop="dateModified" datetime="2019-08-01T20:00:16+08:00">2019-08-01</time>
+                <time title="Modified: 2019-08-04 12:27:32" itemprop="dateModified" datetime="2019-08-04T12:27:32+08:00">2019-08-04</time>
               </span>
             
           
@@ -555,24 +562,232 @@
       
         
           
-            <h2 id="Golang中的for-range实现"><a href="#Golang中的for-range实现" class="headerlink" title="Golang中的for range实现"></a>Golang中的for range实现</h2><h3 id="场景1"><a href="#场景1" class="headerlink" title="场景1"></a>场景1</h3><h4 id="Code-Gist"><a href="#Code-Gist" class="headerlink" title="Code Gist"></a>Code Gist</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">vals := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>&#125;</span><br><span class="line">valptr := <span class="built_in">make</span>([]*<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> k, v := <span class="keyword">range</span> vals &#123;</span><br><span class="line">	<span class="built_in">println</span>(k, v)</span><br><span class="line">	valptr = <span class="built_in">append</span>(valptr, &amp;v)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> _, v := <span class="keyword">range</span> valptr &#123;</span><br><span class="line">	<span class="built_in">println</span>(v)</span><br><span class="line">	<span class="built_in">println</span>(*v)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+            <h2 id="golang中的for-range语义的理解"><a href="#golang中的for-range语义的理解" class="headerlink" title="golang中的for range语义的理解"></a>golang中的for range语义的理解</h2><blockquote>
+<p>golang中for range经常会被用来遍历slice、map、chan、array,但是由于在某些情况下,其内部实现并不是你想的那样,所以使用时还是需要特别注意。</p>
+</blockquote>
+<p>以下是两个错误使用for range的场景</p>
+<h2 id="场景1-在for-range中获取循环变量的地址"><a href="#场景1-在for-range中获取循环变量的地址" class="headerlink" title="场景1 - 在for range中获取循环变量的地址"></a>场景1 - 在for range中获取循环变量的地址</h2><h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	vals := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">	valptr := <span class="built_in">make</span>([]*<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> k, v := <span class="keyword">range</span> vals &#123;</span><br><span class="line">        <span class="comment">//v := v</span></span><br><span class="line">		valptr = <span class="built_in">append</span>(valptr, &amp;v)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, v := <span class="keyword">range</span> valptr &#123;</span><br><span class="line">		<span class="built_in">println</span>(v)</span><br><span class="line">		<span class="built_in">println</span>(*v)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="Output"><a href="#Output" class="headerlink" title="Output"></a>Output</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">0 0</span><br><span class="line">1 1</span><br><span class="line">2 2</span><br><span class="line">3 3</span><br><span class="line">4 4</span><br><span class="line">5 5</span><br><span class="line">6 6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br></pre></td></tr></table></figure>
+<h3 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br></pre></td></tr></table></figure>
 
-<h3 id="场景2"><a href="#场景2" class="headerlink" title="场景2"></a>场景2</h3><h4 id="Code-Gist-1"><a href="#Code-Gist-1" class="headerlink" title="Code Gist"></a>Code Gist</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">kvs := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;</span><br><span class="line">	<span class="string">"zero"</span>: <span class="number">0</span>,</span><br><span class="line">	<span class="string">"one"</span>:  <span class="number">1</span>,</span><br><span class="line">	<span class="string">"two"</span>:  <span class="number">2</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> _, v := <span class="keyword">range</span> kvs &#123;</span><br><span class="line">	<span class="comment">//v := v</span></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="built_in">println</span>(<span class="string">"defer func(): "</span>, v)</span><br><span class="line">	&#125;()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><blockquote>
+<p>The iteration variables in <code>for</code>statements are reused in each iteration. This means that each closure (aka function literal) created in your <code>for</code> loop will reference the same variable (and they’ll get that variable’s value at the time those goroutines start executing).</p>
+</blockquote>
+<p>go runtime中for range循环只会为v分配一次内存，后续只是给<code>v</code>赋值；跟for的语义是一样一样的,如下这样理解起来就容易多了。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</span><br><span class="line">		<span class="built_in">println</span>(<span class="string">"&amp;i="</span>, &amp;i, <span class="string">" i="</span>, i)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="场景2-在closure中捕获循环变量"><a href="#场景2-在closure中捕获循环变量" class="headerlink" title="场景2 - 在closure中捕获循环变量"></a>场景2 - 在closure中捕获循环变量</h2><h3 id="代码-1"><a href="#代码-1" class="headerlink" title="代码"></a>代码</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	kvs := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;</span><br><span class="line">		<span class="string">"zero"</span>: <span class="number">0</span>,</span><br><span class="line">		<span class="string">"one"</span>:  <span class="number">1</span>,</span><br><span class="line">		<span class="string">"two"</span>:  <span class="number">2</span>,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, v := <span class="keyword">range</span> kvs &#123;</span><br><span class="line">		<span class="comment">//v := v</span></span><br><span class="line">		<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="built_in">println</span>(<span class="string">"defer func(): "</span>, v)</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="代码-2"><a href="#代码-2" class="headerlink" title="代码"></a>代码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># go run main.go </span></span><br><span class="line">go func():  2</span><br><span class="line">go func():  2</span><br><span class="line">go func():  2</span><br><span class="line"><span class="comment"># go vet</span></span><br><span class="line"><span class="comment"># github.com/username/gomodule</span></span><br><span class="line">./main.go:19:27: loop variable v captured by func literal</span><br></pre></td></tr></table></figure>
+
+<h3 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h3><p>closure(func literal)中捕获变量是通过引用的方式,因此也会像场景1中那样,<code>v</code>的地址虽然没变,但是值会随着循环变化。</p>
+<p>同时,在场景2中,go vet会有对应的提示:</p>
+<p><code>./main.go:19:27: loop variable v captured by func literal</code></p>
+<p>在出现以上提示时,需要特别小心。同时这里要说下：</p>
+<p><strong><code>go vet</code>是一个很有价值的工具,可以帮助我们发现很多代码问题</strong></p>
+<p>但是场景1是没有的提示, 也不能完全依赖go vet来发现错误。</p>
+<p>除了通过增加<code>v := v</code>的方式,还可以通过以下方式：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	kvs := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;</span><br><span class="line">		<span class="string">"zero"</span>: <span class="number">0</span>,</span><br><span class="line">		<span class="string">"one"</span>:  <span class="number">1</span>,</span><br><span class="line">		<span class="string">"two"</span>:  <span class="number">2</span>,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, v := <span class="keyword">range</span> kvs &#123;</span><br><span class="line">		<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">(v <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">			<span class="built_in">println</span>(<span class="string">"defer func(): "</span>, v)</span><br><span class="line">		&#125;(v)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实原理是一样的，</p>
+<ul>
+<li><code>v (v1) := v (v2)</code> [括号是注释]是显式的创建了一个v的副本,也叫v;  这里两个v的生命周期不同, v2的生命周期是整个for循环,v1的生命周期是for循环中的一个循环,但是这里由于closure对于v1的引用,所以在一个循环结束后,v会发生逃逸,并不会被立即回收;</li>
+<li>把v作为closure的参数,通过golang的pass-by-value,隐式的创建了一个v的副本;</li>
+</ul>
+<p>大部分刚入门golang的开发者都会犯类似错误,讲道理这个可以算是语言的缺陷了，毕竟让用户少犯错也是语言的义务。因此社区中会很多proposal想要解决这个问题。</p>
+<h2 id="Proposal"><a href="#Proposal" class="headerlink" title="Proposal"></a>Proposal</h2><p><a href="https://github.com/golang/go/issues/20733" target="_blank" rel="noopener">proposal: spec: redefine range loop variables in each iteration</a></p>
+<p>已经有人提了类似Proposal, 有可能<code>Go 2.0</code>中会彻底解决这个问题。</p>
+<p>如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> k, v := <span class="keyword">range</span> vals &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>should be equivalent to</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> k, v := <span class="keyword">range</span> vals &#123;</span><br><span class="line">  k := k</span><br><span class="line">  v := v</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html" target="_blank" rel="noopener">https://www.ardanlabs.com/blog/2013/09/iterating-over-slices-in-go.html</a></p>
+<p><a href="https://tam7t.com/golang-range-and-pointers/" target="_blank" rel="noopener">https://tam7t.com/golang-range-and-pointers/</a></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/28/pass-by-value in golang/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binnnliu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="知其所以然">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/07/28/pass-by-value in golang/" class="post-title-link" itemprop="url">golang中的for range语义的理解</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-07-28 15:32:29" itemprop="dateCreated datePublished" datetime="2019-07-28T15:32:29+08:00">2019-07-28</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-08-04 12:27:32" itemprop="dateModified" datetime="2019-08-04T12:27:32+08:00">2019-08-04</time>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="pass-by-value-in-golang"><a href="#pass-by-value-in-golang" class="headerlink" title="pass-by-value in golang"></a>pass-by-value in golang</h1><blockquote>
+<p>golang中所有的参数传递都是pass-by-value的。</p>
+</blockquote>
+<h2 id="Pass-By-Value-vs-Pass-By-Reference"><a href="#Pass-By-Value-vs-Pass-By-Reference" class="headerlink" title="Pass-By-Value vs Pass-By-Reference"></a>Pass-By-Value vs Pass-By-Reference</h2><p>primitive types</p>
+<p>reference types</p>
+<h2 id="sync-WaitGroup-amp-sync-Mutex"><a href="#sync-WaitGroup-amp-sync-Mutex" class="headerlink" title="sync.WaitGroup &amp; sync.Mutex"></a>sync.WaitGroup &amp; sync.Mutex</h2><blockquote>
+<p>A WaitGroup must not be copied after first use.</p>
+<p>A Mutex must not be copied after first use.</p>
+</blockquote>
+<p>首先</p>
+<h2 id="map-slice-chan"><a href="#map-slice-chan" class="headerlink" title="map slice chan"></a>map slice chan</h2><h2 id="For-Range"><a href="#For-Range" class="headerlink" title="For Range"></a>For Range</h2><h3 id="Code-Gist"><a href="#Code-Gist" class="headerlink" title="Code Gist"></a>Code Gist</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	vals := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line">	valptr := <span class="built_in">make</span>([]*<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> k, v := <span class="keyword">range</span> vals &#123;</span><br><span class="line">		valptr = <span class="built_in">append</span>(valptr, &amp;v)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, v := <span class="keyword">range</span> valptr &#123;</span><br><span class="line">		<span class="built_in">println</span>(v)</span><br><span class="line">		<span class="built_in">println</span>(*v)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Output"><a href="#Output" class="headerlink" title="Output"></a>Output</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br><span class="line">0xc000016140</span><br><span class="line">6</span><br></pre></td></tr></table></figure>
+
+<h3 id="Code-Gist-1"><a href="#Code-Gist-1" class="headerlink" title="Code Gist"></a>Code Gist</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	kvs := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;</span><br><span class="line">		<span class="string">"zero"</span>: <span class="number">0</span>,</span><br><span class="line">		<span class="string">"one"</span>:  <span class="number">1</span>,</span><br><span class="line">		<span class="string">"two"</span>:  <span class="number">2</span>,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, v := <span class="keyword">range</span> kvs &#123;</span><br><span class="line">		<span class="comment">//v := v</span></span><br><span class="line">		<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="built_in">println</span>(<span class="string">"defer func(): "</span>, v)</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h4 id="Output-1"><a href="#Output-1" class="headerlink" title="Output"></a>Output</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># go run main.go </span></span><br><span class="line">go func():  2</span><br><span class="line">go func():  2</span><br><span class="line">go func():  2</span><br><span class="line"><span class="comment"># go vet</span></span><br><span class="line"><span class="comment"># github.com/username/gomodule</span></span><br><span class="line">./main.go:19:27: loop variable v captured by func literal</span><br></pre></td></tr></table></figure>
 
 <h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><p>出现上述两种场景的原因是:</p>
 <ul>
-<li>go runtime整个for循环会在第一个循环为v申请一次内存,后续循环只是修改v对应的值,v的地址不变</li>
-<li>for range中, v是pass-by-value</li>
+<li>go runtime中for range循环只会为v分配一次内存，后续只是给v赋值；跟for的语义是一样一样的</li>
 </ul>
 <p>以上,场景2中,go vet会有对应的提示:</p>
 <p><code>./main.go:19:27: loop variable v captured by func literal</code></p>
 <p>但是场景1是没有的,讲道理这个可以算是语言的缺陷了，毕竟让用户少犯错也是语言的义务。</p>
+<blockquote>
+<p>The iteration variables in <code>for</code>statements are reused in each iteration. This means that each closure (aka function literal) created in your <code>for</code> loop will reference the same variable (and they’ll get that variable’s value at the time those goroutines start executing).</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fixmap</span><span class="params">(cmap <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span></span>  &#123;</span><br><span class="line">	cmap[<span class="string">"a"</span>] = <span class="string">"aaa"</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fn</span><span class="params">(m <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	m = <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	amap := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>&#123;</span><br><span class="line">		<span class="string">"a"</span>:<span class="string">"aa"</span>,</span><br><span class="line">		<span class="string">"b"</span>:<span class="string">"bb"</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	bmap := amap</span><br><span class="line">	bmap[<span class="string">"b"</span>] = <span class="string">"bbb"</span></span><br><span class="line">	fixmap(amap)</span><br><span class="line">	<span class="keyword">for</span> k,v := <span class="keyword">range</span> amap &#123;</span><br><span class="line">		fmt.Println(k, v)</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> dmap <span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span></span><br><span class="line">	fn(dmap)</span><br><span class="line">	fmt.Println(dmap == <span class="literal">nil</span>)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h3 id="Proposal"><a href="#Proposal" class="headerlink" title="Proposal"></a>Proposal</h3><p><a href="https://github.com/golang/go/issues/20733" target="_blank" rel="noopener">proposal: spec: redefine range loop variables in each iteration</a></p>
-<p>已经有人提了Proposal, 预计<code>Go 2.0</code>中会彻底解决这个问题。</p>
+<p>已经有人提了Proposal, 有可能<code>Go 2.0</code>中会彻底解决这个问题。</p>
 <p>如下：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> k, v := <span class="keyword">range</span> vals &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1449,7 +1664,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
