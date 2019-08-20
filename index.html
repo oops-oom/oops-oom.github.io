@@ -305,404 +305,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/20/slice is not thread-safe in golang/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="binnnliu">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="知其所以然">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/08/20/slice is not thread-safe in golang/" class="post-title-link" itemprop="url">Untitled</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2019-08-20 20:29:26" itemprop="dateCreated datePublished" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
-            </span>
-          
-
-          
-
-          
-
-          
-          
-
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"sync"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	x := []<span class="keyword">string</span>&#123;<span class="string">"start"</span>&#125;</span><br><span class="line"></span><br><span class="line">	wg := sync.WaitGroup&#123;&#125;</span><br><span class="line">	wg.Add(<span class="number">2</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		y := <span class="built_in">append</span>(x, <span class="string">"hello"</span>, <span class="string">"world"</span>)</span><br><span class="line">		<span class="built_in">println</span>(<span class="built_in">cap</span>(y), <span class="built_in">len</span>(y))</span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		z := <span class="built_in">append</span>(x, <span class="string">"goodbye"</span>, <span class="string">"bob"</span>)</span><br><span class="line">		<span class="built_in">println</span>(<span class="built_in">cap</span>(z), <span class="built_in">len</span>(z))</span><br><span class="line">	&#125;()</span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"sync"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	x := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="number">0</span>, <span class="number">6</span>)</span><br><span class="line"></span><br><span class="line">	wg := sync.WaitGroup&#123;&#125;</span><br><span class="line">	wg.Add(<span class="number">2</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		y := <span class="built_in">append</span>(x, <span class="string">"hello"</span>, <span class="string">"world"</span>)</span><br><span class="line">		<span class="built_in">println</span>(<span class="built_in">len</span>(y))</span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		z := <span class="built_in">append</span>(x, <span class="string">"goodbye"</span>, <span class="string">"bob"</span>)</span><br><span class="line">		<span class="built_in">println</span>(<span class="built_in">len</span>(z))</span><br><span class="line">	&#125;()</span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">➜  gostudy go run -race append_slice.go</span><br><span class="line">2</span><br><span class="line">==================</span><br><span class="line">WARNING: DATA RACE</span><br><span class="line">Write at 0x00c00009a000 by goroutine 6:</span><br><span class="line">  main.main.func2()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/append_slice.go:19 +0xa2</span><br><span class="line"></span><br><span class="line">Previous write at 0x00c00009a000 by goroutine 5:</span><br><span class="line">  main.main.func1()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/append_slice.go:14 +0xa2</span><br><span class="line"></span><br><span class="line">Goroutine 6 (running) created at:</span><br><span class="line">  main.main()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/append_slice.go:17 +0x12c</span><br><span class="line"></span><br><span class="line">Goroutine 5 (finished) created at:</span><br><span class="line">  main.main()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/append_slice.go:12 +0xee</span><br><span class="line">==================</span><br><span class="line">==================</span><br><span class="line">WARNING: DATA RACE</span><br><span class="line">Write at 0x00c00009a010 by goroutine 6:</span><br><span class="line">  main.main.func2()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/append_slice.go:19 +0xf1</span><br><span class="line"></span><br><span class="line">Previous write at 0x00c00009a010 by goroutine 5:</span><br><span class="line">  main.main.func1()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/append_slice.go:14 +0xf1</span><br><span class="line"></span><br><span class="line">Goroutine 6 (running) created at:</span><br><span class="line">  main.main()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/append_slice.go:17 +0x12c</span><br><span class="line"></span><br><span class="line">Goroutine 5 (finished) created at:</span><br><span class="line">  main.main()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/append_slice.go:12 +0xee</span><br><span class="line">==================</span><br><span class="line">2</span><br><span class="line">Found 2 data race(s)</span><br><span class="line"><span class="built_in">exit</span> status 66</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"sync"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	x := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="number">0</span>, <span class="number">6</span>)</span><br><span class="line">	x = <span class="built_in">append</span>(x, <span class="string">"start"</span>)</span><br><span class="line"></span><br><span class="line">	wg := sync.WaitGroup&#123;&#125;</span><br><span class="line">	wg.Add(<span class="number">2</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		y := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="number">0</span>, <span class="built_in">len</span>(x)+<span class="number">2</span>)</span><br><span class="line">		y = <span class="built_in">append</span>(y, x...)</span><br><span class="line">		y = <span class="built_in">append</span>(y, <span class="string">"hello"</span>, <span class="string">"world"</span>)</span><br><span class="line">		<span class="built_in">println</span>(<span class="built_in">cap</span>(y), <span class="built_in">len</span>(y), y[<span class="number">0</span>])</span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		z := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="number">0</span>, <span class="built_in">len</span>(x)+<span class="number">2</span>)</span><br><span class="line">		z = <span class="built_in">append</span>(z, x...)</span><br><span class="line">		z = <span class="built_in">append</span>(z, <span class="string">"goodbye"</span>, <span class="string">"bob"</span>)</span><br><span class="line">		<span class="built_in">println</span>(<span class="built_in">cap</span>(z), <span class="built_in">len</span>(z), z[<span class="number">0</span>])</span><br><span class="line">	&#125;()</span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"sync"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Egg <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	wg := sync.WaitGroup&#123;&#125;</span><br><span class="line">	<span class="keyword">var</span> eo []Egg</span><br><span class="line"></span><br><span class="line">	wg.Add(<span class="number">1</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		eo = []Egg&#123;</span><br><span class="line">			Egg&#123;&#125;, Egg&#123;&#125;,</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	wg.Add(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		eo = []Egg&#123;</span><br><span class="line">			Egg&#123;&#125;,</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">➜  gostudy go run -race slice.go</span><br><span class="line">==================</span><br><span class="line">WARNING: DATA RACE</span><br><span class="line">Write at 0x00c00008e000 by goroutine 6:</span><br><span class="line">  main.main.func2()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/slice.go:24 +0x7c</span><br><span class="line"></span><br><span class="line">Previous write at 0x00c00008e000 by goroutine 5:</span><br><span class="line">  main.main.func1()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/slice.go:15 +0x7c</span><br><span class="line"></span><br><span class="line">Goroutine 6 (running) created at:</span><br><span class="line">  main.main()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/slice.go:22 +0x13b</span><br><span class="line"></span><br><span class="line">Goroutine 5 (finished) created at:</span><br><span class="line">  main.main()</span><br><span class="line">      /Users/binnnliu/go/src/gostudy/slice.go:13 +0xf8</span><br><span class="line">==================</span><br><span class="line">Found 1 data race(s)</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-
-    
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/20/Generics/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="binnnliu">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="知其所以然">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/08/20/Generics/" class="post-title-link" itemprop="url">Untitled</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2019-08-20 20:29:26" itemprop="dateCreated datePublished" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
-            </span>
-          
-
-          
-
-          
-
-          
-          
-
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Generics"><a href="#Generics" class="headerlink" title="Generics"></a>Generics</h1><p>Go 2.0快要来了！其中开发者们最期待的要数泛型了。那么什么是泛型呢？使用泛型有什么好处呢？</p>
-<h2 id="Why-generics"><a href="#Why-generics" class="headerlink" title="Why generics"></a>Why generics</h2><p>先看下没有泛型的后果！怕不怕！</p>
-<p><img src="/Users/binnnliu/Downloads/know-why/_posts/assets/v2-dd2dc3bc72b058b85774ee804a521165_hd.gif" alt="v2-dd2dc3bc72b058b85774ee804a521165_hd"></p>
-<p>有点扯</p>
-<ul>
-<li>编译时类型检查，避免运行时ClassCastException;</li>
-<li>消除强制类型转换；</li>
-<li>代码简洁，实现通用算法；</li>
-</ul>
-<h2 id="Generics-In-JVM"><a href="#Generics-In-JVM" class="headerlink" title="Generics In JVM"></a>Generics In JVM</h2><blockquote>
-<p>Generics in Java are an entirely compile-time construct - the compiler turns all generic uses into casts to the right type. This is to maintain backwards compatibility with previous JVM runtimes.</p>
-</blockquote>
-<h3 id="Basic-Concept"><a href="#Basic-Concept" class="headerlink" title="Basic Concept"></a>Basic Concept</h3><ul>
-<li><p>runtime exception vs compile-time</p>
-</li>
-<li><p>variance</p>
-<p>invariance covariant  covariant</p>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th align="center">Variance</th>
-<th align="center">中文描述</th>
-<th align="center">描述 [假设A是B的子类(A &lt;: B)]</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">Invariance</td>
-<td align="center">不变性</td>
-<td align="center"><code>T[A]</code>与<code>T[B]</code>没有父子关系</td>
-</tr>
-<tr>
-<td align="center">Covariance</td>
-<td align="center">协变性</td>
-<td align="center"><code>T[A]</code>是<code>T[B]</code>的子类(<code>T[A] &lt;: T[B]</code>)</td>
-</tr>
-<tr>
-<td align="center">Contravariance</td>
-<td align="center">逆变性</td>
-<td align="center"><code>T[A]</code>是<code>T[B]</code>的父类(<code>T[B] &lt;: T[A]</code>)</td>
-</tr>
-</tbody></table>
-<p>Java中数组是covariance的，遇到了ClassCastException\ArrayStoreException的问题</p>
-<p>支持泛型，<code>T&lt;A&gt;</code>与<code>T&lt;B&gt;</code>成为invariance  (type parameter =&gt; bound type parameter vs Bounded Wildcards ) </p>
-<p>为了多态=&gt; bounded wildcard (upper bound vs lower bound)</p>
-<p><code>process(List&lt; ? extends Car&gt; list)</code> 可以接受<code>List&lt;Car&gt;</code> 、<code>List&lt;BWM&gt;</code>等类型的参数</p>
-<p><code>process(List&lt;? super Car&gt; list)</code> 可以接受<code>List&lt;Vehicle&gt;</code>、<code>List&lt;Object&gt;</code>等类型的参数</p>
-<p>对于bound wildcard类型使用的限制</p>
-<p>limit =&gt; producer extend consumer super   </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vehicle</span> </span>&#123; &#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Car</span> <span class="keyword">extends</span>  <span class="title">Vehicle</span></span>&#123; &#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BMW</span> <span class="keyword">extends</span> <span class="title">Car</span> </span>&#123; &#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AstonMartin</span> <span class="keyword">extends</span>  <span class="title">Car</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// List&lt;Car&gt; list = new ArrayList&lt;BMW&gt;();</span></span><br><span class="line">    <span class="comment">// Incompatible types. =&gt; so Bounded Wildcard comes.</span></span><br><span class="line"></span><br><span class="line">    List&lt;? extends Car&gt; cars = <span class="keyword">new</span> ArrayList&lt;BMW&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// cars.add(new AstonMartin());  compile-time error</span></span><br><span class="line">    <span class="comment">// 如果编译不报错，运行时就会产生runtime exception</span></span><br><span class="line">    <span class="comment">// 因为实际存储是List&lt;BMW&gt;，我们却要存入AstonMartin;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    List&lt;? <span class="keyword">super</span> Car&gt; objs = <span class="keyword">new</span> ArrayList&lt;Object&gt;();</span><br><span class="line">    objs.add(<span class="keyword">new</span> Car());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Car car = objs.get(0);</span></span><br><span class="line">    <span class="comment">// compile-time error, down-casting error 因为里面存储的比如object并不能转化成Car</span></span><br><span class="line"></span><br><span class="line">    Object obj = objs.get(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h5 id="Recursive-Generics"><a href="#Recursive-Generics" class="headerlink" title="Recursive Generics"></a>Recursive Generics</h5><h5 id="Comparable-vs-Comparator"><a href="#Comparable-vs-Comparator" class="headerlink" title="Comparable vs Comparator"></a>Comparable vs Comparator</h5><h5 id="Class-lt-T-gt"><a href="#Class-lt-T-gt" class="headerlink" title="Class&lt;T&gt;"></a><code>Class&lt;T&gt;</code></h5><h5 id="Bound-type-parameter-vs-Bounded-Wildcards"><a href="#Bound-type-parameter-vs-Bounded-Wildcards" class="headerlink" title="Bound type parameter vs Bounded Wildcards"></a>Bound type parameter vs Bounded Wildcards</h5><p>List&lt;? extends x&gt; imutable</p>
-<p>List<t extends x> mutable, invariance</t></p>
-<h4 id="Scala"><a href="#Scala" class="headerlink" title="Scala"></a>Scala</h4><p>array  mutable invariance</p>
-<ul>
-<li><p>use-site variance</p>
-</li>
-<li><p>declaration-site variance</p>
-</li>
-</ul>
-<p>List[+A]  declaration-site variance  immutable (“add” operation on a List returns a new List)</p>
-<h3 id="Java中Array的tradeoff"><a href="#Java中Array的tradeoff" class="headerlink" title="Java中Array的tradeoff"></a>Java中Array的tradeoff</h3><p>J2SE 1.5之前是不支持generics的。</p>
-<p>当时java的设计者就面临这么一个问题：</p>
-<blockquote>
-<p>String是Object的子类型，String[]是不是也是Object[]的子类型？</p>
-</blockquote>
-<h4 id="假如String-是Object-的子类型"><a href="#假如String-是Object-的子类型" class="headerlink" title="假如String[]是Object[]的子类型"></a>假如String[]是Object[]的子类型</h4><p>优点 ：那么对于函数<code>boolean equalArrays (Object[] a1, Object[] a2);</code>可以支持这样的调用</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String[] strs = &#123;<span class="string">"abc"</span>,<span class="string">"abd"</span>,<span class="string">"abcd"</span>&#125;;</span><br><span class="line">equalArrays(strs, strs);</span><br></pre></td></tr></table></figure>
-
-<p>缺点：会出现运行时错误 (type unsound)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">String[] strs = &#123;<span class="string">"abc"</span>,<span class="string">"abd"</span>,<span class="string">"abcd"</span>&#125;;</span><br><span class="line">Object[] objs = strs;</span><br><span class="line">objs[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Exception in thread "main" java.lang.ArrayStoreException: java.lang.Integer</span></span><br></pre></td></tr></table></figure>
-
-<p>当然如果String[]不是Object[]的子类型就不会上面的优点和缺点；</p>
-<p>最终JAVA的设计者们选择了: 是，让String[]成为Object的子类型。</p>
-<h3 id="JAVA支持泛型"><a href="#JAVA支持泛型" class="headerlink" title="JAVA支持泛型"></a>JAVA支持泛型</h3><p>在J2SE 5.0的时候JAVA支持了泛型，这一次JAVA的设计者们选择对运行时错误说no。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;String&gt; strs = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">list.add(<span class="string">"1"</span>);</span><br><span class="line">list.add(<span class="string">"2"</span>);</span><br><span class="line"></span><br><span class="line">ArrayList&lt;Object&gt; objs = list;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Error: java: incompatible types: java.util.ArrayList&lt;java.lang.String&gt; cannot be converted to java.util.ArrayList&lt;java.lang.Object&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>如上所示，如果我们在把<code>ArrayList&lt;String&gt;</code>赋值给ArrayList<object>会有compile-error;</object></p>
-<p>为了兼容历史代码，JAVA的泛型实现是基于编译构造的，</p>
-<p>但是由于之前的array的设计加之要向前兼容，array导致不支持泛型,类似 new List<string>[]{}； </string></p>
-<h5 id="java泛型的问题所在"><a href="#java泛型的问题所在" class="headerlink" title="java泛型的问题所在"></a>java泛型的问题所在</h5><ol>
-<li><p>数组不支持泛型</p>
-</li>
-<li><p>泛型不支持primitive types 【拆箱装箱 comes】</p>
-<ul>
-<li>性能问题</li>
-<li>内存问题</li>
-</ul>
-</li>
-</ol>
-<ul>
-<li>type erase</li>
-</ul>
-<p>List Raw Type 历史兼容</p>
-<p>List<object>  Invariance </object></p>
-<p>List&lt;?&gt;  Covariance  代价:不能add null以外的值</p>
-<h3 id="Generic-Types"><a href="#Generic-Types" class="headerlink" title="Generic Types"></a>Generic Types</h3><h3 id="Generic-Methods"><a href="#Generic-Methods" class="headerlink" title="Generic Methods"></a>Generic Methods</h3><h3 id="Type-Erase"><a href="#Type-Erase" class="headerlink" title="Type Erase"></a>Type Erase</h3><h3 id="Bounded-Generics"><a href="#Bounded-Generics" class="headerlink" title="Bounded Generics"></a>Bounded Generics</h3><h3 id="Wildcard-Generics"><a href="#Wildcard-Generics" class="headerlink" title="Wildcard Generics"></a>Wildcard Generics</h3><h3 id="Variance-and-Invariance"><a href="#Variance-and-Invariance" class="headerlink" title="Variance and Invariance"></a>Variance and Invariance</h3><p>Java Generics were introduced in JDK 5.0 with the aim of reducing bugs and adding an extra layer of abstraction over types.</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a href="https://docs.oracle.com/javase/tutorial/java/generics/index.html" target="_blank" rel="noopener">Lesson: Generics</a></p>
-<p><a href="https://docs.oracle.com/javase/tutorial/java/generics/why.html" target="_blank" rel="noopener">Why Use Generics?</a></p>
-<p><a href="https://appliedgo.net/generics/" target="_blank" rel="noopener">Who needs generics? Use … instead!</a></p>
-<p><a href="https://medium.com/@sinisalouc/overcoming-type-erasure-in-scala-8f2422070d20" target="_blank" rel="noopener">Overcoming type erasure in Scala</a></p>
-<p><a href="https://medium.com/javarevisited/variance-in-java-and-scala-63af925d21dc" target="_blank" rel="noopener">A Complete Guide to Variance in Java and Scala</a></p>
-<p><a href="http://www.tothenew.com/blog/why-is-generic-array-creation-not-allowed-in-java/" target="_blank" rel="noopener">Why is Generic Array Creation not Allowed in Java?</a></p>
-<p><a href="https://stackoverflow.com/questions/2721546/why-dont-java-generics-support-primitive-types" target="_blank" rel="noopener">Why don’t Java Generics support primitive types?</a></p>
-<p><a href="https://scalac.io/specialized-generics-object-instantiation/" target="_blank" rel="noopener">AVOIDING UNNECESSARY OBJECT INSTANTIATION WITH SPECIALIZED GENERICS</a></p>
-<p><a href="https://proandroiddev.com/understanding-generics-and-variance-in-kotlin-714c14564c47" target="_blank" rel="noopener">Understanding Generics and Variance in Kotlin</a></p>
-<p><a href="https://stackoverflow.com/questions/2723397/what-is-pecs-producer-extends-consumer-super" target="_blank" rel="noopener">What is PECS (Producer Extends Consumer Super)?</a></p>
-<p><a href="https://stackoverflow.com/questions/38944896/difference-between-bounded-type-parameter-and-upper-bound-wildcard" target="_blank" rel="noopener">Difference between Bounded Type parameter and Upper Bound Wildcard</a></p>
-<p><img src="https://codeprime.org/wp-content/uploads/2019/02/Inheritance-hierarchy-of-Vehicle-500x348.png" alt="Inheritance hierarchy of Vehicle class"></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/07/HSTS/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -748,13 +350,23 @@
                 
               
 
-              <time title="Created: 2019-08-07 10:32:29 / Modified: 10:34:43" itemprop="dateCreated datePublished" datetime="2019-08-07T10:32:29+08:00">2019-08-07</time>
+              <time title="Created: 2019-08-07 10:32:29" itemprop="dateCreated datePublished" datetime="2019-08-07T10:32:29+08:00">2019-08-07</time>
             </span>
           
 
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
+              </span>
             
           
 
@@ -1198,7 +810,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-05 00:15:27" itemprop="dateModified" datetime="2019-08-05T00:15:27+08:00">2019-08-05</time>
+                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
               </span>
             
           
@@ -1390,7 +1002,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-07-28 16:55:22" itemprop="dateModified" datetime="2019-07-28T16:55:22+08:00">2019-07-28</time>
+                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
               </span>
             
           
@@ -1621,7 +1233,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-01 20:00:16" itemprop="dateModified" datetime="2019-08-01T20:00:16+08:00">2019-08-01</time>
+                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
               </span>
             
           
@@ -2008,7 +1620,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-01 20:00:16" itemprop="dateModified" datetime="2019-08-01T20:00:16+08:00">2019-08-01</time>
+                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
               </span>
             
           
@@ -2151,7 +1763,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
