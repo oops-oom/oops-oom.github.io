@@ -107,7 +107,7 @@
 <meta property="og:site_name" content="知其所以然">
 <meta property="og:description" content="For the impatient, golang is aways pass-by-value. Java is strictly pass-by-value, exactly as in C.   map是pass-by-value的代码12345678910111213141516171819202122232425package mainimport &quot;fmt&quot;func fixmap(m">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:updated_time" content="2019-08-04T16:15:27.512Z">
+<meta property="og:updated_time" content="2019-08-20T12:29:26.509Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="pass-by-value in golang">
 <meta name="twitter:description" content="For the impatient, golang is aways pass-by-value. Java is strictly pass-by-value, exactly as in C.   map是pass-by-value的代码12345678910111213141516171819202122232425package mainimport &quot;fmt&quot;func fixmap(m">
@@ -367,7 +367,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-05 00:15:27" itemprop="dateModified" datetime="2019-08-05T00:15:27+08:00">2019-08-05</time>
+                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
               </span>
             
           
@@ -416,10 +416,46 @@
 <blockquote>
 <p>A map value is a pointer to a <code>runtime.hmap</code> structure.</p>
 </blockquote>
-<p>所以map是pass by value的,只不过这里的map本身是个指针;chan,slice，array也是类似原理。</p>
+<p>所以map是pass by value的,只不过这里的map本身是个指针;chan,slice(稍微有点特殊)，array也是类似原理。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> SliceHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">	Data <span class="keyword">uintptr</span></span><br><span class="line">	Len  <span class="keyword">int</span></span><br><span class="line">	Cap  <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">modifySlice1</span><span class="params">(intslice []<span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">	intslice[<span class="number">1</span>] = <span class="number">2</span></span><br><span class="line">	<span class="comment">// 虽然修改了底层数据,由于slice是传值调用,没有修改到slice.len</span></span><br><span class="line">	intslice = <span class="built_in">append</span>(intslice, <span class="number">3</span>)</span><br><span class="line">	<span class="comment">// 扩容了不再指向原来的数据,所以修改未对intarray生效</span></span><br><span class="line">	intslice = <span class="built_in">append</span>(intslice, <span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	intarray := [<span class="number">3</span>]<span class="keyword">int</span>&#123;&#125;</span><br><span class="line">	intslice := intarray[:<span class="number">0</span>]</span><br><span class="line">	<span class="built_in">println</span>(<span class="string">"len(intslice): "</span>, <span class="built_in">len</span>(intslice), <span class="string">"  cap(intslice):"</span>, <span class="built_in">cap</span>(intslice))</span><br><span class="line">	intslice = <span class="built_in">append</span>(intslice, <span class="number">1</span>)</span><br><span class="line">	intslice = <span class="built_in">append</span>(intslice, <span class="number">1</span>)</span><br><span class="line">	<span class="built_in">println</span>(<span class="string">"len(intslice): "</span>, <span class="built_in">len</span>(intslice), <span class="string">"  cap(intslice):"</span>, <span class="built_in">cap</span>(intslice))</span><br><span class="line">	modifySlice1(intslice)</span><br><span class="line">	<span class="built_in">println</span>(<span class="string">"len(intslice): "</span>, <span class="built_in">len</span>(intslice), <span class="string">"  cap(intslice):"</span>, <span class="built_in">cap</span>(intslice))</span><br><span class="line"></span><br><span class="line">	<span class="built_in">println</span>(<span class="string">"intarray[2]:"</span>, intarray[<span class="number">2</span>])</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> k, v := <span class="keyword">range</span> intslice &#123;</span><br><span class="line">		<span class="built_in">println</span>(<span class="string">"intslice k:"</span>, k, <span class="string">" v:"</span>, v)</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="built_in">println</span>(intslice[<span class="number">2</span>])  <span class="comment">// panic: runtime error: index out of range</span></span><br><span class="line">	<span class="built_in">println</span>(intslice[<span class="number">2</span>:<span class="number">3</span>][<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> k, v := <span class="keyword">range</span> intarray &#123;</span><br><span class="line">		<span class="built_in">println</span>(<span class="string">"intarray k:"</span>, k, <span class="string">" v:"</span>, v)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="Pass-By-Value-vs-Pass-By-Reference"><a href="#Pass-By-Value-vs-Pass-By-Reference" class="headerlink" title="Pass-By-Value vs Pass-By-Reference"></a>Pass-By-Value vs Pass-By-Reference</h2><p>区别于<code>primitive types</code> <code>reference types</code></p>
+<table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th align="center">值类型/引用类型</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">struct</td>
+<td align="center">值类型</td>
+<td align="center">Mutex、WaitGroup等</td>
+</tr>
+<tr>
+<td align="center">array</td>
+<td align="center">value type</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">chan</td>
+<td align="center">reference type</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">slice</td>
+<td align="center">reference type</td>
+<td align="center">SliceHeader</td>
+</tr>
+<tr>
+<td align="center">map</td>
+<td align="center">reference type</td>
+<td align="center">runtime.makemap</td>
+</tr>
+</tbody></table>
 <p>区别于<code>call by name</code> <code>call by value</code> <code>lazy</code> <code>val</code> <code>def</code> in scala</p>
 <p><code>reference</code> <code>dereference</code></p>
 <blockquote>
@@ -477,8 +513,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/08/04/TODO/" rel="next" title="写作计划">
-                <i class="fa fa-chevron-left"></i> 写作计划
+              <a href="/2019/07/28/golang中的for range语义的理解/" rel="next" title="golang中的for range语义的理解">
+                <i class="fa fa-chevron-left"></i> golang中的for range语义的理解
               </a>
             
           </div>

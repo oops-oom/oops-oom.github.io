@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-tw">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    search: {
+      root: '/',
+      path: ''
+    },
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    }
+  };
+</script>
+
+  <meta name="description" content="GenericsGo 2.0快要来了！其中开发者们最期待的要数泛型了。那么什么是泛型呢？使用泛型有什么好处呢？ Why generics先看下没有泛型的后果！怕不怕！  有点扯  编译时类型检查，避免运行时ClassCastException; 消除强制类型转换； 代码简洁，实现通用算法；  Generics In JVM Generics in Java are an entirely comp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="知其所以然">
+<meta property="og:url" content="http://yoursite.com/2019/08/20/Generics/index.html">
+<meta property="og:site_name" content="知其所以然">
+<meta property="og:description" content="GenericsGo 2.0快要来了！其中开发者们最期待的要数泛型了。那么什么是泛型呢？使用泛型有什么好处呢？ Why generics先看下没有泛型的后果！怕不怕！  有点扯  编译时类型检查，避免运行时ClassCastException; 消除强制类型转换； 代码简洁，实现通用算法；  Generics In JVM Generics in Java are an entirely comp">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:image" content="http://yoursite.com/Users/binnnliu/Downloads/know-why/_posts/assets/v2-dd2dc3bc72b058b85774ee804a521165_hd.gif">
+<meta property="og:image" content="https://codeprime.org/wp-content/uploads/2019/02/Inheritance-hierarchy-of-Vehicle-500x348.png">
+<meta property="og:updated_time" content="2019-08-20T12:29:26.497Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="知其所以然">
+<meta name="twitter:description" content="GenericsGo 2.0快要来了！其中开发者们最期待的要数泛型了。那么什么是泛型呢？使用泛型有什么好处呢？ Why generics先看下没有泛型的后果！怕不怕！  有点扯  编译时类型检查，避免运行时ClassCastException; 消除强制类型转换； 代码简洁，实现通用算法；  Generics In JVM Generics in Java are an entirely comp">
+<meta name="twitter:image" content="http://yoursite.com/Users/binnnliu/Downloads/know-why/_posts/assets/v2-dd2dc3bc72b058b85774ee804a521165_hd.gif">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2019/08/20/Generics/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  
+  <title> | 知其所以然</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">知其所以然</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+</div>
+    </header>
+
+    
+  
+  
+
+  
+
+  <a href="https://github.com/binnnliu" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewbox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a>
+
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/20/Generics/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binnnliu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="知其所以然">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-08-20 20:29:26" itemprop="dateCreated datePublished" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
+            </span>
+          
+
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Generics"><a href="#Generics" class="headerlink" title="Generics"></a>Generics</h1><p>Go 2.0快要来了！其中开发者们最期待的要数泛型了。那么什么是泛型呢？使用泛型有什么好处呢？</p>
+<h2 id="Why-generics"><a href="#Why-generics" class="headerlink" title="Why generics"></a>Why generics</h2><p>先看下没有泛型的后果！怕不怕！</p>
+<p><img src="/Users/binnnliu/Downloads/know-why/_posts/assets/v2-dd2dc3bc72b058b85774ee804a521165_hd.gif" alt="v2-dd2dc3bc72b058b85774ee804a521165_hd"></p>
+<p>有点扯</p>
+<ul>
+<li>编译时类型检查，避免运行时ClassCastException;</li>
+<li>消除强制类型转换；</li>
+<li>代码简洁，实现通用算法；</li>
+</ul>
+<h2 id="Generics-In-JVM"><a href="#Generics-In-JVM" class="headerlink" title="Generics In JVM"></a>Generics In JVM</h2><blockquote>
+<p>Generics in Java are an entirely compile-time construct - the compiler turns all generic uses into casts to the right type. This is to maintain backwards compatibility with previous JVM runtimes.</p>
+</blockquote>
+<h3 id="Basic-Concept"><a href="#Basic-Concept" class="headerlink" title="Basic Concept"></a>Basic Concept</h3><ul>
+<li><p>runtime exception vs compile-time</p>
+</li>
+<li><p>variance</p>
+<p>invariance covariant  covariant</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">Variance</th>
+<th align="center">中文描述</th>
+<th align="center">描述 [假设A是B的子类(A &lt;: B)]</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Invariance</td>
+<td align="center">不变性</td>
+<td align="center"><code>T[A]</code>与<code>T[B]</code>没有父子关系</td>
+</tr>
+<tr>
+<td align="center">Covariance</td>
+<td align="center">协变性</td>
+<td align="center"><code>T[A]</code>是<code>T[B]</code>的子类(<code>T[A] &lt;: T[B]</code>)</td>
+</tr>
+<tr>
+<td align="center">Contravariance</td>
+<td align="center">逆变性</td>
+<td align="center"><code>T[A]</code>是<code>T[B]</code>的父类(<code>T[B] &lt;: T[A]</code>)</td>
+</tr>
+</tbody></table>
+<p>Java中数组是covariance的，遇到了ClassCastException\ArrayStoreException的问题</p>
+<p>支持泛型，<code>T&lt;A&gt;</code>与<code>T&lt;B&gt;</code>成为invariance  (type parameter =&gt; bound type parameter vs Bounded Wildcards ) </p>
+<p>为了多态=&gt; bounded wildcard (upper bound vs lower bound)</p>
+<p><code>process(List&lt; ? extends Car&gt; list)</code> 可以接受<code>List&lt;Car&gt;</code> 、<code>List&lt;BWM&gt;</code>等类型的参数</p>
+<p><code>process(List&lt;? super Car&gt; list)</code> 可以接受<code>List&lt;Vehicle&gt;</code>、<code>List&lt;Object&gt;</code>等类型的参数</p>
+<p>对于bound wildcard类型使用的限制</p>
+<p>limit =&gt; producer extend consumer super   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vehicle</span> </span>&#123; &#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Car</span> <span class="keyword">extends</span>  <span class="title">Vehicle</span></span>&#123; &#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BMW</span> <span class="keyword">extends</span> <span class="title">Car</span> </span>&#123; &#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AstonMartin</span> <span class="keyword">extends</span>  <span class="title">Car</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// List&lt;Car&gt; list = new ArrayList&lt;BMW&gt;();</span></span><br><span class="line">    <span class="comment">// Incompatible types. =&gt; so Bounded Wildcard comes.</span></span><br><span class="line"></span><br><span class="line">    List&lt;? extends Car&gt; cars = <span class="keyword">new</span> ArrayList&lt;BMW&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// cars.add(new AstonMartin());  compile-time error</span></span><br><span class="line">    <span class="comment">// 如果编译不报错，运行时就会产生runtime exception</span></span><br><span class="line">    <span class="comment">// 因为实际存储是List&lt;BMW&gt;，我们却要存入AstonMartin;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    List&lt;? <span class="keyword">super</span> Car&gt; objs = <span class="keyword">new</span> ArrayList&lt;Object&gt;();</span><br><span class="line">    objs.add(<span class="keyword">new</span> Car());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Car car = objs.get(0);</span></span><br><span class="line">    <span class="comment">// compile-time error, down-casting error 因为里面存储的比如object并不能转化成Car</span></span><br><span class="line"></span><br><span class="line">    Object obj = objs.get(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="Recursive-Generics"><a href="#Recursive-Generics" class="headerlink" title="Recursive Generics"></a>Recursive Generics</h5><h5 id="Comparable-vs-Comparator"><a href="#Comparable-vs-Comparator" class="headerlink" title="Comparable vs Comparator"></a>Comparable vs Comparator</h5><h5 id="Class-lt-T-gt"><a href="#Class-lt-T-gt" class="headerlink" title="Class&lt;T&gt;"></a><code>Class&lt;T&gt;</code></h5><h5 id="Bound-type-parameter-vs-Bounded-Wildcards"><a href="#Bound-type-parameter-vs-Bounded-Wildcards" class="headerlink" title="Bound type parameter vs Bounded Wildcards"></a>Bound type parameter vs Bounded Wildcards</h5><p>List&lt;? extends x&gt; imutable</p>
+<p>List<t extends x> mutable, invariance</t></p>
+<h4 id="Scala"><a href="#Scala" class="headerlink" title="Scala"></a>Scala</h4><p>array  mutable invariance</p>
+<ul>
+<li><p>use-site variance</p>
+</li>
+<li><p>declaration-site variance</p>
+</li>
+</ul>
+<p>List[+A]  declaration-site variance  immutable (“add” operation on a List returns a new List)</p>
+<h3 id="Java中Array的tradeoff"><a href="#Java中Array的tradeoff" class="headerlink" title="Java中Array的tradeoff"></a>Java中Array的tradeoff</h3><p>J2SE 1.5之前是不支持generics的。</p>
+<p>当时java的设计者就面临这么一个问题：</p>
+<blockquote>
+<p>String是Object的子类型，String[]是不是也是Object[]的子类型？</p>
+</blockquote>
+<h4 id="假如String-是Object-的子类型"><a href="#假如String-是Object-的子类型" class="headerlink" title="假如String[]是Object[]的子类型"></a>假如String[]是Object[]的子类型</h4><p>优点 ：那么对于函数<code>boolean equalArrays (Object[] a1, Object[] a2);</code>可以支持这样的调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String[] strs = &#123;<span class="string">"abc"</span>,<span class="string">"abd"</span>,<span class="string">"abcd"</span>&#125;;</span><br><span class="line">equalArrays(strs, strs);</span><br></pre></td></tr></table></figure>
+
+<p>缺点：会出现运行时错误 (type unsound)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">String[] strs = &#123;<span class="string">"abc"</span>,<span class="string">"abd"</span>,<span class="string">"abcd"</span>&#125;;</span><br><span class="line">Object[] objs = strs;</span><br><span class="line">objs[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Exception in thread "main" java.lang.ArrayStoreException: java.lang.Integer</span></span><br></pre></td></tr></table></figure>
+
+<p>当然如果String[]不是Object[]的子类型就不会上面的优点和缺点；</p>
+<p>最终JAVA的设计者们选择了: 是，让String[]成为Object的子类型。</p>
+<h3 id="JAVA支持泛型"><a href="#JAVA支持泛型" class="headerlink" title="JAVA支持泛型"></a>JAVA支持泛型</h3><p>在J2SE 5.0的时候JAVA支持了泛型，这一次JAVA的设计者们选择对运行时错误说no。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;String&gt; strs = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">list.add(<span class="string">"1"</span>);</span><br><span class="line">list.add(<span class="string">"2"</span>);</span><br><span class="line"></span><br><span class="line">ArrayList&lt;Object&gt; objs = list;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Error: java: incompatible types: java.util.ArrayList&lt;java.lang.String&gt; cannot be converted to java.util.ArrayList&lt;java.lang.Object&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>如上所示，如果我们在把<code>ArrayList&lt;String&gt;</code>赋值给ArrayList<object>会有compile-error;</object></p>
+<p>为了兼容历史代码，JAVA的泛型实现是基于编译构造的，</p>
+<p>但是由于之前的array的设计加之要向前兼容，array导致不支持泛型,类似 new List<string>[]{}； </string></p>
+<h5 id="java泛型的问题所在"><a href="#java泛型的问题所在" class="headerlink" title="java泛型的问题所在"></a>java泛型的问题所在</h5><ol>
+<li><p>数组不支持泛型</p>
+</li>
+<li><p>泛型不支持primitive types 【拆箱装箱 comes】</p>
+<ul>
+<li>性能问题</li>
+<li>内存问题</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>type erase</li>
+</ul>
+<p>List Raw Type 历史兼容</p>
+<p>List<object>  Invariance </object></p>
+<p>List&lt;?&gt;  Covariance  代价:不能add null以外的值</p>
+<h3 id="Generic-Types"><a href="#Generic-Types" class="headerlink" title="Generic Types"></a>Generic Types</h3><h3 id="Generic-Methods"><a href="#Generic-Methods" class="headerlink" title="Generic Methods"></a>Generic Methods</h3><h3 id="Type-Erase"><a href="#Type-Erase" class="headerlink" title="Type Erase"></a>Type Erase</h3><h3 id="Bounded-Generics"><a href="#Bounded-Generics" class="headerlink" title="Bounded Generics"></a>Bounded Generics</h3><h3 id="Wildcard-Generics"><a href="#Wildcard-Generics" class="headerlink" title="Wildcard Generics"></a>Wildcard Generics</h3><h3 id="Variance-and-Invariance"><a href="#Variance-and-Invariance" class="headerlink" title="Variance and Invariance"></a>Variance and Invariance</h3><p>Java Generics were introduced in JDK 5.0 with the aim of reducing bugs and adding an extra layer of abstraction over types.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a href="https://docs.oracle.com/javase/tutorial/java/generics/index.html" target="_blank" rel="noopener">Lesson: Generics</a></p>
+<p><a href="https://docs.oracle.com/javase/tutorial/java/generics/why.html" target="_blank" rel="noopener">Why Use Generics?</a></p>
+<p><a href="https://appliedgo.net/generics/" target="_blank" rel="noopener">Who needs generics? Use … instead!</a></p>
+<p><a href="https://medium.com/@sinisalouc/overcoming-type-erasure-in-scala-8f2422070d20" target="_blank" rel="noopener">Overcoming type erasure in Scala</a></p>
+<p><a href="https://medium.com/javarevisited/variance-in-java-and-scala-63af925d21dc" target="_blank" rel="noopener">A Complete Guide to Variance in Java and Scala</a></p>
+<p><a href="http://www.tothenew.com/blog/why-is-generic-array-creation-not-allowed-in-java/" target="_blank" rel="noopener">Why is Generic Array Creation not Allowed in Java?</a></p>
+<p><a href="https://stackoverflow.com/questions/2721546/why-dont-java-generics-support-primitive-types" target="_blank" rel="noopener">Why don’t Java Generics support primitive types?</a></p>
+<p><a href="https://scalac.io/specialized-generics-object-instantiation/" target="_blank" rel="noopener">AVOIDING UNNECESSARY OBJECT INSTANTIATION WITH SPECIALIZED GENERICS</a></p>
+<p><a href="https://proandroiddev.com/understanding-generics-and-variance-in-kotlin-714c14564c47" target="_blank" rel="noopener">Understanding Generics and Variance in Kotlin</a></p>
+<p><a href="https://stackoverflow.com/questions/2723397/what-is-pecs-producer-extends-consumer-super" target="_blank" rel="noopener">What is PECS (Producer Extends Consumer Super)?</a></p>
+<p><a href="https://stackoverflow.com/questions/38944896/difference-between-bounded-type-parameter-and-upper-bound-wildcard" target="_blank" rel="noopener">Difference between Bounded Type parameter and Upper Bound Wildcard</a></p>
+<p><img src="https://codeprime.org/wp-content/uploads/2019/02/Inheritance-hierarchy-of-Vehicle-500x348.png" alt="Inheritance hierarchy of Vehicle class"></p>
+
+      
+    </div>
+
+    
+
+    
+      
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/07/HSTS/" rel="next" title="HSTS in Https">
+                <i class="fa fa-chevron-left"></i> HSTS in Https
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/20/slice is not thread-safe in golang/" rel="prev" title>
+                 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  
+  <p class="site-author-name" itemprop="name">binnnliu</p>
+  <div class="site-description motion-element" itemprop="description"></div>
+</div>
+
+
+  <nav class="site-state motion-element">
+    
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+
+    
+
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+          
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Generics"><span class="nav-number">1.</span> <span class="nav-text">Generics</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Why-generics"><span class="nav-number">1.1.</span> <span class="nav-text">Why generics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Generics-In-JVM"><span class="nav-number">1.2.</span> <span class="nav-text">Generics In JVM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Basic-Concept"><span class="nav-number">1.2.1.</span> <span class="nav-text">Basic Concept</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Recursive-Generics"><span class="nav-number">1.2.1.0.1.</span> <span class="nav-text">Recursive Generics</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Comparable-vs-Comparator"><span class="nav-number">1.2.1.0.2.</span> <span class="nav-text">Comparable vs Comparator</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Class-lt-T-gt"><span class="nav-number">1.2.1.0.3.</span> <span class="nav-text">Class&lt;T&gt;</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Bound-type-parameter-vs-Bounded-Wildcards"><span class="nav-number">1.2.1.0.4.</span> <span class="nav-text">Bound type parameter vs Bounded Wildcards</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Scala"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">Scala</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java中Array的tradeoff"><span class="nav-number">1.2.2.</span> <span class="nav-text">Java中Array的tradeoff</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#假如String-是Object-的子类型"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">假如String[]是Object[]的子类型</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JAVA支持泛型"><span class="nav-number">1.2.3.</span> <span class="nav-text">JAVA支持泛型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#java泛型的问题所在"><span class="nav-number">1.2.3.0.1.</span> <span class="nav-text">java泛型的问题所在</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generic-Types"><span class="nav-number">1.2.4.</span> <span class="nav-text">Generic Types</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generic-Methods"><span class="nav-number">1.2.5.</span> <span class="nav-text">Generic Methods</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Type-Erase"><span class="nav-number">1.2.6.</span> <span class="nav-text">Type Erase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bounded-Generics"><span class="nav-number">1.2.7.</span> <span class="nav-text">Bounded Generics</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Wildcard-Generics"><span class="nav-number">1.2.8.</span> <span class="nav-text">Wildcard Generics</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Variance-and-Invariance"><span class="nav-number">1.2.9.</span> <span class="nav-text">Variance and Invariance</span></a></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">1.3.</span> <span class="nav-text">Reference</span></a></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">binnnliu</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/schemes/muse.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// GET RESPONSIVE HEIGHT PASSED FROM IFRAME
+
+window.addEventListener("message", function(e) {
+  var data = e.data;
+  if ((typeof data === 'string') && (data.indexOf('ciu_embed') > -1)) {
+    var featureID = data.split(':')[1];
+    var height = data.split(':')[2];
+    $(`iframe[data-feature=${featureID}]`).height(parseInt(height) + 30);
+  }
+}, false);
+</script>
+
+
+
+
+
+
+
+
+  
+
+</body>
+</html>
