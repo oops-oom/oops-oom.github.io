@@ -365,7 +365,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
+                <time title="Modified: 2020-03-23 12:49:14" itemprop="dateModified" datetime="2020-03-23T12:49:14+08:00">2020-03-23</time>
               </span>
             
           
@@ -590,7 +590,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
+                <time title="Modified: 2020-03-23 12:49:14" itemprop="dateModified" datetime="2020-03-23T12:49:14+08:00">2020-03-23</time>
               </span>
             
           
@@ -810,7 +810,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
+                <time title="Modified: 2020-03-23 12:49:14" itemprop="dateModified" datetime="2020-03-23T12:49:14+08:00">2020-03-23</time>
               </span>
             
           
@@ -1002,7 +1002,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
+                <time title="Modified: 2020-03-23 12:49:14" itemprop="dateModified" datetime="2020-03-23T12:49:14+08:00">2020-03-23</time>
               </span>
             
           
@@ -1061,7 +1061,7 @@
 <h2 id="too-many-open-files的影响"><a href="#too-many-open-files的影响" class="headerlink" title="too many open files的影响"></a>too many open files的影响</h2><p>代码细节</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">for &#123;</span><br><span class="line">	rw, e := l.Accept()</span><br><span class="line">	if e != nil &#123;</span><br><span class="line">		select &#123;</span><br><span class="line">		case &lt;-srv.getDoneChan():</span><br><span class="line">			return ErrServerClosed</span><br><span class="line">		default:</span><br><span class="line">		&#125;</span><br><span class="line">		if ne, ok := e.(net.Error); ok &amp;&amp; ne.Temporary() &#123;</span><br><span class="line">			if tempDelay == 0 &#123;</span><br><span class="line">				tempDelay = 5 * time.Millisecond</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				tempDelay *= 2</span><br><span class="line">			&#125;</span><br><span class="line">			if max := 1 * time.Second; tempDelay &gt; max &#123;</span><br><span class="line">				tempDelay = max</span><br><span class="line">			&#125;</span><br><span class="line">			srv.logf(&quot;http: Accept error: %v; retrying in %v&quot;, e, tempDelay)</span><br><span class="line">			time.Sleep(tempDelay)</span><br><span class="line">			continue</span><br><span class="line">		&#125;</span><br><span class="line">		return e</span><br><span class="line">	&#125;</span><br><span class="line">	tempDelay = 0</span><br><span class="line">	c := srv.newConn(rw)</span><br><span class="line">	c.setState(c.rwc, StateNew) // before Serve can return</span><br><span class="line">	go c.serve(ctx)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://ask.qcloudimg.com/draft/1318359/k2iri4a7ox.png" alt="日志"></p>
+<p><img src="https://oops-oom.github.io/img/accept_error.png" alt="日志"></p>
 <p><strong>打开文件数超过程序限制会导致accept失败，accept失败后会循环重试，这里的log默认是输出的stdout的。</strong></p>
 <h3 id="一些延伸"><a href="#一些延伸" class="headerlink" title="一些延伸"></a>一些延伸</h3><p>accept失败会导致accept队列中的连接不能被及时取出，accept队列满了怎么办？</p>
 <p><strong>三次握手产生的：sync队列和accept队列</strong></p>
@@ -1081,7 +1081,7 @@
 <p><strong>命令查看队列满了的丢包现象</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">netstat -s | egrep <span class="string">"listen|LISTEN"</span> </span><br><span class="line">19219 <span class="built_in">times</span> the listen queue of a socket overflowed</span><br><span class="line">19234 SYNs to LISTEN sockets dropped</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://binnnliu.github.io/img/tcp.jpg" alt="[图片来自莿鸟栖草堂](https://www.cnxct.com/something-about-phpfpm-s-backlog/)"></p>
+<p><img src="https://oops-oom.github.io/img/tcp.jpg" alt="[图片来自莿鸟栖草堂](https://www.cnxct.com/something-about-phpfpm-s-backlog/)"></p>
 <p>too  many open files导致accept失败会重试导致响应耗时增加，同时accept失败会导致accept队列中的连接不能被及时取出，accept队列会慢；</p>
 <p>accept队列满了，server端会丢弃ack，超时后server重发syn + ack，导致耗时增加；</p>
 <p>syn队列慢了，server端会丢弃syn，超时后clienth会重发syn，导致耗时增加。</p>
@@ -1094,7 +1094,7 @@
 <p>最小化服务，排除干扰，只调用分词库进行分析。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strace ./demo</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://binnnliu.github.io/img/strace01.png" alt="strace输出"></p>
+<p><img src="https://oops-oom.github.io/img/strace01.png" alt="strace输出"></p>
 <p>分析发现，确实创建了两个socket，但是只close了一个。</p>
 <p>这里是采用非阻塞的方式发起连接，此处connect时，返回EINPROGRESS；</p>
 <p>直接看man 2 connect:</p>
@@ -1233,7 +1233,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
+                <time title="Modified: 2020-03-23 12:49:14" itemprop="dateModified" datetime="2020-03-23T12:49:14+08:00">2020-03-23</time>
               </span>
             
           
@@ -1422,7 +1422,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
+                <time title="Modified: 2020-03-23 12:49:14" itemprop="dateModified" datetime="2020-03-23T12:49:14+08:00">2020-03-23</time>
               </span>
             
           
@@ -1460,7 +1460,7 @@
           
             <h3 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h3><p>前段时间微博上注意到[叔度] <a href="http://weibo.com/tshudu" target="_blank" rel="noopener">7</a>，发了两篇关于面试的微博：</p>
 <blockquote>
-<p>一些小伙伴们写网络程序的一个坏习惯是连接建立后就挂上可写事件，这是很浪费的。正确的方法是先写，写不下去才挂上可写事件。另外，可写事件其实不是事件，它只是判断发送缓冲区是否还有空间，它是被底层的TCP事件给附带上来的。附图是Linux内核源码实现。<img src="https://binnnliu.github.io/img/sendbufevent.jpg" alt="enter image description here"></p>
+<p>一些小伙伴们写网络程序的一个坏习惯是连接建立后就挂上可写事件，这是很浪费的。正确的方法是先写，写不下去才挂上可写事件。另外，可写事件其实不是事件，它只是判断发送缓冲区是否还有空间，它是被底层的TCP事件给附带上来的。附图是Linux内核源码实现。<img src="https://oops-oom.github.io/img/sendbufevent.jpg" alt="enter image description here"></p>
 </blockquote>
 <blockquote>
 <p>对于非阻塞的connect，返回EINPROGRESS之后要加fd到epoll的可写事件监视集合里面，等fd可写了之后记得要调用getsockopt判断SOL_SOCKET的SO_ERROR值是否为0！非0表示连接失败。</p>
@@ -1547,179 +1547,6 @@
   </article>
 
     
-        
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2014/03/10/Hexo/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="binnnliu">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="知其所以然">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2014/03/10/Hexo/" class="post-title-link" itemprop="url">Hexo搭建Blog记录</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-
-          
-          
-          
-
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2014-03-10 01:32:29" itemprop="dateCreated datePublished" datetime="2014-03-10T01:32:29+08:00">2014-03-10</time>
-            </span>
-          
-
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-
-          
-
-          <br>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Hexo-101"><a href="#Hexo-101" class="headerlink" title="Hexo 101"></a>Hexo 101</h1><h2 id="Install-nodejs"><a href="#Install-nodejs" class="headerlink" title="Install nodejs"></a>Install nodejs</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Just For Linux</span></span><br><span class="line">wget https://npm.taobao.org/mirrors/node/v10.16.0/node-v10.16.0-linux-x64.tar.gz</span><br><span class="line">tar xzvf node-v10.16.0-linux-x64.tar.gz </span><br><span class="line">mv node-v10.16.0-linux-x64 /usr/<span class="built_in">local</span>/</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"PATH=<span class="variable">$PATH</span>:/usr/local/node-v10.16.0-linux-x64/bin"</span> &gt;&gt; ~/.bash_profile</span><br><span class="line"><span class="built_in">source</span> ~/.bash_profile</span><br><span class="line"><span class="comment"># check if success</span></span><br><span class="line">npm -v</span><br></pre></td></tr></table></figure>
-
-<h2 id="Hexo"><a href="#Hexo" class="headerlink" title="Hexo"></a>Hexo</h2><h3 id="Install-Hexo"><a href="#Install-Hexo" class="headerlink" title="Install Hexo"></a>Install Hexo</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># set proxy if needed</span></span><br><span class="line">npm config <span class="built_in">set</span> http-proxy http://devnet-proxy.oa.com:8080</span><br><span class="line">npm config <span class="built_in">set</span> https-proxy http://devnet-proxy.oa.com:8080</span><br><span class="line"></span><br><span class="line">npm install -g hexo-cli</span><br><span class="line">npm install hexo-deployer-git --save</span><br><span class="line">hexo init blog</span><br><span class="line">hexo serve -p 80</span><br></pre></td></tr></table></figure>
-
-<p>source 目录存放了_posts和img,额外的仓库进行版本管理,所以发布之前需要拉取最新文章列表;</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># deploy</span></span><br><span class="line"><span class="built_in">cd</span> blog/<span class="built_in">source</span></span><br><span class="line">git pull</span><br><span class="line">hexo generate</span><br><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-
-<h3 id="Theme"><a href="#Theme" class="headerlink" title="Theme"></a>Theme</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">cd</span> <span class="string">blog</span></span><br><span class="line"><span class="string">git</span> <span class="string">clone</span> <span class="attr">https://github.com/theme-next/hexo-theme-next</span> <span class="string">themes/next</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Setting"><a href="#Setting" class="headerlink" title="Setting"></a>Setting</h3><p>_config.yml</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Site</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">Know</span> <span class="string">Why</span></span><br><span class="line"><span class="attr">subtitle:</span></span><br><span class="line"><span class="attr">description:</span></span><br><span class="line"><span class="attr">keywords:</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">binnnliu</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">en</span></span><br><span class="line"><span class="attr">timezone:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Extensions</span></span><br><span class="line"><span class="comment">## Plugins: https://hexo.io/plugins/</span></span><br><span class="line"><span class="comment">## Themes: https://hexo.io/themes/</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Deployment</span></span><br><span class="line"><span class="comment">## Docs: https://hexo.io/docs/deployment.html</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line"><span class="attr">  type:</span> <span class="string">git</span></span><br><span class="line"><span class="attr">  repo:</span> <span class="attr">https://github.com/binnnliu/binnnliu.github.io.git</span></span><br><span class="line"><span class="attr">  branch:</span> <span class="string">master</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Git-Setting"><a href="#Git-Setting" class="headerlink" title="Git Setting"></a>Git Setting</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># linux下git保存用户名密码</span><br><span class="line">cd ~</span><br><span class="line">touch .git-credentials</span><br><span class="line">git config --global credential.helper store </span><br><span class="line"># 下次登录会记录用户名密码</span><br></pre></td></tr></table></figure>
-
-<h3 id="创建标签"><a href="#创建标签" class="headerlink" title="创建标签"></a>创建标签</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">​</span><br></pre></td></tr></table></figure>
-
-<p>mkdir -p source/tags<br>vi themes/next/_config.yml </p>
-<h1 id="uncomment-‘tags-tags-tags’"><a href="#uncomment-‘tags-tags-tags’" class="headerlink" title="uncomment  ‘tags: /tags/ || tags’"></a>uncomment  ‘tags: /tags/ || tags’</h1><p>​<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">```</span><br></pre></td></tr></table></figure></p>
-<p>title: golang中的for range实现<br>date: 2019-07-28 15:32:29<br>tags: </p>
-<ul>
-<li>golang<pre><code></code></pre></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
   </section>
 
   
@@ -1763,7 +1590,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

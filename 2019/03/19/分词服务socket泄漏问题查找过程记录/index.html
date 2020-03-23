@@ -107,14 +107,14 @@
 <meta property="og:site_name" content="知其所以然">
 <meta property="og:description" content="线上响应超时问题分析现象调用分词服务的服务发现超时并告警，查看分词服务被调耗时发现一切正常；本机手动请求发现确实存在响应慢的问题。 重启后发现响应正常，重启线上服务，确保线上服务正常；并保留一台进行观察。 日志日志中只一些业务错误的记录，未发现明显导致问题的错误； 网络问题由于分词服务被调耗时正常，根据经验首先是怀疑网络问题： 因为分词服务响应包较小，所以被调的时间是接收到请求的时间到把响应写到t">
 <meta property="og:locale" content="zh-tw">
-<meta property="og:image" content="https://ask.qcloudimg.com/draft/1318359/k2iri4a7ox.png">
-<meta property="og:image" content="https://binnnliu.github.io/img/tcp.jpg">
-<meta property="og:image" content="https://binnnliu.github.io/img/strace01.png">
-<meta property="og:updated_time" content="2019-08-20T12:29:26.508Z">
+<meta property="og:image" content="https://oops-oom.github.io/img/accept_error.png">
+<meta property="og:image" content="https://oops-oom.github.io/img/tcp.jpg">
+<meta property="og:image" content="https://oops-oom.github.io/img/strace01.png">
+<meta property="og:updated_time" content="2020-03-23T04:49:14.067Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="线上响应超时问题分析">
 <meta name="twitter:description" content="线上响应超时问题分析现象调用分词服务的服务发现超时并告警，查看分词服务被调耗时发现一切正常；本机手动请求发现确实存在响应慢的问题。 重启后发现响应正常，重启线上服务，确保线上服务正常；并保留一台进行观察。 日志日志中只一些业务错误的记录，未发现明显导致问题的错误； 网络问题由于分词服务被调耗时正常，根据经验首先是怀疑网络问题： 因为分词服务响应包较小，所以被调的时间是接收到请求的时间到把响应写到t">
-<meta name="twitter:image" content="https://ask.qcloudimg.com/draft/1318359/k2iri4a7ox.png">
+<meta name="twitter:image" content="https://oops-oom.github.io/img/accept_error.png">
 
 
 
@@ -371,7 +371,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-08-20 20:29:26" itemprop="dateModified" datetime="2019-08-20T20:29:26+08:00">2019-08-20</time>
+                <time title="Modified: 2020-03-23 12:49:14" itemprop="dateModified" datetime="2020-03-23T12:49:14+08:00">2020-03-23</time>
               </span>
             
           
@@ -428,7 +428,7 @@
 <h2 id="too-many-open-files的影响"><a href="#too-many-open-files的影响" class="headerlink" title="too many open files的影响"></a>too many open files的影响</h2><p>代码细节</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">for &#123;</span><br><span class="line">	rw, e := l.Accept()</span><br><span class="line">	if e != nil &#123;</span><br><span class="line">		select &#123;</span><br><span class="line">		case &lt;-srv.getDoneChan():</span><br><span class="line">			return ErrServerClosed</span><br><span class="line">		default:</span><br><span class="line">		&#125;</span><br><span class="line">		if ne, ok := e.(net.Error); ok &amp;&amp; ne.Temporary() &#123;</span><br><span class="line">			if tempDelay == 0 &#123;</span><br><span class="line">				tempDelay = 5 * time.Millisecond</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">				tempDelay *= 2</span><br><span class="line">			&#125;</span><br><span class="line">			if max := 1 * time.Second; tempDelay &gt; max &#123;</span><br><span class="line">				tempDelay = max</span><br><span class="line">			&#125;</span><br><span class="line">			srv.logf(&quot;http: Accept error: %v; retrying in %v&quot;, e, tempDelay)</span><br><span class="line">			time.Sleep(tempDelay)</span><br><span class="line">			continue</span><br><span class="line">		&#125;</span><br><span class="line">		return e</span><br><span class="line">	&#125;</span><br><span class="line">	tempDelay = 0</span><br><span class="line">	c := srv.newConn(rw)</span><br><span class="line">	c.setState(c.rwc, StateNew) // before Serve can return</span><br><span class="line">	go c.serve(ctx)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://ask.qcloudimg.com/draft/1318359/k2iri4a7ox.png" alt="日志"></p>
+<p><img src="https://oops-oom.github.io/img/accept_error.png" alt="日志"></p>
 <p><strong>打开文件数超过程序限制会导致accept失败，accept失败后会循环重试，这里的log默认是输出的stdout的。</strong></p>
 <h3 id="一些延伸"><a href="#一些延伸" class="headerlink" title="一些延伸"></a>一些延伸</h3><p>accept失败会导致accept队列中的连接不能被及时取出，accept队列满了怎么办？</p>
 <p><strong>三次握手产生的：sync队列和accept队列</strong></p>
@@ -448,7 +448,7 @@
 <p><strong>命令查看队列满了的丢包现象</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">netstat -s | egrep <span class="string">"listen|LISTEN"</span> </span><br><span class="line">19219 <span class="built_in">times</span> the listen queue of a socket overflowed</span><br><span class="line">19234 SYNs to LISTEN sockets dropped</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://binnnliu.github.io/img/tcp.jpg" alt="[图片来自莿鸟栖草堂](https://www.cnxct.com/something-about-phpfpm-s-backlog/)"></p>
+<p><img src="https://oops-oom.github.io/img/tcp.jpg" alt="[图片来自莿鸟栖草堂](https://www.cnxct.com/something-about-phpfpm-s-backlog/)"></p>
 <p>too  many open files导致accept失败会重试导致响应耗时增加，同时accept失败会导致accept队列中的连接不能被及时取出，accept队列会慢；</p>
 <p>accept队列满了，server端会丢弃ack，超时后server重发syn + ack，导致耗时增加；</p>
 <p>syn队列慢了，server端会丢弃syn，超时后clienth会重发syn，导致耗时增加。</p>
@@ -461,7 +461,7 @@
 <p>最小化服务，排除干扰，只调用分词库进行分析。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strace ./demo</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://binnnliu.github.io/img/strace01.png" alt="strace输出"></p>
+<p><img src="https://oops-oom.github.io/img/strace01.png" alt="strace输出"></p>
 <p>分析发现，确实创建了两个socket，但是只close了一个。</p>
 <p>这里是采用非阻塞的方式发起连接，此处connect时，返回EINPROGRESS；</p>
 <p>直接看man 2 connect:</p>
@@ -610,7 +610,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
